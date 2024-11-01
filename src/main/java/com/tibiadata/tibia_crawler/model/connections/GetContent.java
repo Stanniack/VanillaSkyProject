@@ -13,6 +13,14 @@ import org.jsoup.nodes.Element;
  */
 public class GetContent {
 
+    /**
+     * @param url link to get HTTP connection
+     * @param select1 HTML tag1 ex: table, tbody, tr, td and its selectors
+     * @param select2 HTML tag2 ex: table, tbody, tr, td and its selectors
+     * @return a list of string lists containing all
+     * &lt;tag1&gt;&lt;tag2&gt;&lt;/tag2&gt;&lt;/tag1&gt; elements.
+     * @throws IOException
+     */
     public List<List<String>> getTableContent(String url, String select1, String select2) throws IOException {
         Document document = Jsoup.connect(url).get(); // Pega o html
 
