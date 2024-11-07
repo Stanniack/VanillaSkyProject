@@ -53,4 +53,12 @@ public class FormerName {
         this.id = id;
     }
 
+    public Personage getPersonage() {
+        return personage;
+    }
+
+    public void setPersonage(Personage personage) {
+        this.personage = personage;
+    }
+
 }
