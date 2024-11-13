@@ -20,11 +20,11 @@ public class FormerName {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String formerName;
+
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
     private Personage personage;
-
-    private String formerName;
 
     @Column(nullable = false)
     private Calendar registratedDate;
