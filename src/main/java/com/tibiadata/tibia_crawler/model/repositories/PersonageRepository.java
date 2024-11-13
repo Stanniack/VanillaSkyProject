@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface PersonageRepository extends JpaRepository<Personage, Long> {
-    Personage findByName(String name); 
+    Personage findByName(String name);
+    boolean existsByName(String name);
 }
