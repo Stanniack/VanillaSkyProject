@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface FormerNameRepository extends JpaRepository<FormerName, Long> {
-    
+
+    FormerName findByFormerName(String formerName);
 }
