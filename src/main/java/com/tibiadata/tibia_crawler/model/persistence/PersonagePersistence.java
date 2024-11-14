@@ -22,9 +22,12 @@ public class PersonagePersistence {
     public Personage findByName(String name) {
         return pp.findByName(name);
     }
-    
+
     public boolean existsByName(String name) {
         return pp.existsByName(name);
     }
 
+    public Integer findIdByName(String name) {
+        return pp.findIdByName(name);
+    }
 }
