@@ -15,9 +15,8 @@ public class FormerNamePersistence {
     @Autowired
     FormerNameRepository fnr;
 
-    public FormerName save(FormerName fn) {
-        return fnr.save(fn);
+    public FormerName save(FormerName formerName) {
+        return fnr.save(formerName);
     }
-    
 
 }
