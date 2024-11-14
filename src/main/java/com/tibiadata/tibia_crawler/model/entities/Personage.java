@@ -63,4 +63,9 @@ public class Personage {
         this.formerNames = formerNames;
     }
 
+    @Override
+    public String toString() {
+        return "Personage{" + "name=" + name + ", registratedDate=" + registratedDate + ", formerNames=" + formerNames + '}';
+    }
+
 }

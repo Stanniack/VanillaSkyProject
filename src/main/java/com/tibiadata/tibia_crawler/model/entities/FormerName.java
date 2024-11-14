@@ -29,6 +29,11 @@ public class FormerName {
     @Column(nullable = false)
     private Calendar registratedDate;
 
+    public FormerName(String formerName, Calendar registratedDate) {
+        this.formerName = formerName;
+        this.registratedDate = registratedDate;
+    }
+
     public String getFormerName() {
         return formerName;
     }
@@ -59,6 +64,11 @@ public class FormerName {
 
     public void setPersonage(Personage personage) {
         this.personage = personage;
+    }
+
+    @Override
+    public String toString() {
+        return "FormerName{" + "formerName=" + formerName + ", personage=" + personage + '}';
     }
 
 }
