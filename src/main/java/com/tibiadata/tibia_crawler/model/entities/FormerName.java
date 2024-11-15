@@ -7,6 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.Calendar;
 
 /**
@@ -27,11 +29,24 @@ public class FormerName {
     private Personage personage;
 
     @Column(nullable = false)
-    private Calendar registratedDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Calendar registeredDate;
+
+    /**
+     * Hibernate needs a default constructor
+     */
+    public FormerName() {
+    }
 
     public FormerName(String formerName, Calendar registratedDate) {
         this.formerName = formerName;
-        this.registratedDate = registratedDate;
+        this.registeredDate = registratedDate;
+    }
+
+    public FormerName(String formerName, Personage personage, Calendar registratedDate) {
+        this.formerName = formerName;
+        this.personage = personage;
+        this.registeredDate = registratedDate;
     }
 
     public String getFormerName() {
@@ -42,12 +57,12 @@ public class FormerName {
         this.formerName = formerName;
     }
 
-    public Calendar getRegistratedDate() {
-        return registratedDate;
+    public Calendar getRegisteredDate() {
+        return registeredDate;
     }
 
-    public void setRegistratedDate(Calendar registratedDate) {
-        this.registratedDate = registratedDate;
+    public void setRegisteredDate(Calendar registeredDate) {
+        this.registeredDate = registeredDate;
     }
 
     public Integer getId() {
