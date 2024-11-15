@@ -19,4 +19,8 @@ public class FormerNamePersistence {
         return fnr.save(formerName);
     }
 
+    public boolean isFormerNameFromPersonage(String formerName, Integer personageID) {
+        return fnr.isFormerNameFromPersonage(formerName, personageID);
+    }
+
 }
