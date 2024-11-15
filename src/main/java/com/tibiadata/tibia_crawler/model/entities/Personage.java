@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -26,10 +28,17 @@ public class Personage {
     private String name;
 
     @Column(nullable = false)
-    private Calendar registratedDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Calendar registeredDate;
 
-    @OneToMany(mappedBy = "personage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "personage")
     private List<FormerName> formerNames = new ArrayList<>(); // Inicialização da lista
+
+    /**
+     * Hibernate needs a default constructor
+     */
+    public Personage() {
+    }
 
     public Integer getId() {
         return id;
@@ -47,12 +56,12 @@ public class Personage {
         this.name = name;
     }
 
-    public Calendar getRegistratedDate() {
-        return registratedDate;
+    public Calendar getRegisteredDate() {
+        return registeredDate;
     }
 
-    public void setRegistratedDate(Calendar registratedDate) {
-        this.registratedDate = registratedDate;
+    public void setRegisteredDate(Calendar registeredDate) {
+        this.registeredDate = registeredDate;
     }
 
     public List<FormerName> getFormerNames() {
@@ -65,7 +74,7 @@ public class Personage {
 
     @Override
     public String toString() {
-        return "Personage{" + "name=" + name + ", registratedDate=" + registratedDate + ", formerNames=" + formerNames + '}';
+        return "Personage{" + "name=" + name + ", registratedDate=" + registeredDate + ", formerNames=" + formerNames + '}';
     }
 
 }
