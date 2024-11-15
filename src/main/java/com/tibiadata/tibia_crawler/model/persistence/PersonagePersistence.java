@@ -2,6 +2,7 @@ package com.tibiadata.tibia_crawler.model.persistence;
 
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.repositories.PersonageRepository;
+import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,4 +31,9 @@ public class PersonagePersistence {
     public Integer findIdByName(String name) {
         return pp.findIdByName(name);
     }
+    
+    public Calendar findRegisteredDateByName(String name){
+        return pp.findRegisteredDateByName(name);
+    }
+    
 }
