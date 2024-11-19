@@ -98,18 +98,17 @@ public class GetCharacter {
         }
     }
 
-    private void formerNameValidator(boolean existsName, String formerName) {
+    private void formerNameValidator(boolean existsName, String formerName, String name) {
         String[] splittedFormerNames = this.splitAndReplace(formerName, "[:,]");
 
         // Se não existe é novo ou trocou de nick
         if (!existsName) {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                // pelo menos um former name existe na coluna de names? Name foi trocado
                 String currentFormerName = splittedFormerNames[i].replaceFirst("^\\s+", "");
-
+                // pelo menos um former name existe na coluna de names? Name foi trocado
                 if (pp.existsByName(currentFormerName)) {
-                    this.personage.setId(this.pp.findIdByName(currentFormerName)); // add id já existente do personagem
-                    this.personage.setRegisteredDate(this.pp.findRegisteredDateByName(currentFormerName)); // puxa data de registro caso o personagem já existir
+                    this.personage = this.recoverPersonage(currentFormerName); // Puxa apenas a tabela principal Personage
+                    this.personage.setName(name); // Char existe mas name foi trocado
                 }
                 this.formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
             }
@@ -127,14 +126,14 @@ public class GetCharacter {
 
                 if (this.personage == null) {
                     this.needsPersistence = true;
-                    this.personage = new Personage();
+                    this.personage = new Personage(); // Instancia um novo objeto caso realmente for um personagem novo
                     this.personage.setName(name); // set name
                 }
 
             } else if (item.contains(FORMERNAMES)) {
                 // se for falso, então é preciso checar os former names
                 this.existsName = this.personageValidator(name);
-                this.formerNameValidator(existsName, item);
+                this.formerNameValidator(existsName, item, name);
             }
         }
     }
