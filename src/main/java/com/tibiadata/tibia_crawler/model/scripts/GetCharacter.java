@@ -24,8 +24,8 @@ public class GetCharacter {
 
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
+    private static final String TITLE = ".*[0-9]+ titles unlocked.*";
 
-    private static final int TITLE = 0;
     private static final int ITEM = 1;
 
     boolean existsName = false;
@@ -53,9 +53,9 @@ public class GetCharacter {
         try {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
             if (!itens.isEmpty()) {
-                this.flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
-                this.persistPersonage(personage);
-                this.persistFormerName(personage);
+                flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
+                persistPersonage(personage);
+                persistFormerName(personage);
             }
         } catch (IOException ex) {
             Logger.getLogger(GetCharacter.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,9 +63,9 @@ public class GetCharacter {
     }
 
     public void getCharacter(List<String> itens) {
-        this.flowScript(itens);
-        this.persistPersonage(personage);
-        this.persistFormerName(personage);
+        flowScript(itens);
+        persistPersonage(personage);
+        persistFormerName(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -74,23 +74,23 @@ public class GetCharacter {
             if (p.getRegisteredDate() == null) {
                 p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
             }
-            this.pp.save(p);
+            pp.save(p);
 
         } else {
-            System.out.println("Personage " + this.personage.getName() + " não precisa de persistência");
+            System.out.println("Personage " + personage.getName() + " não precisa de persistência");
         }
     }
 
     private void persistFormerName(Personage p) {
-        for (FormerName formerName : this.formerNames) {
+        for (FormerName formerName : formerNames) {
 
-            System.out.print("\n" + this.fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())
+            System.out.print("\n" + fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())
                     + " ID: " + p.getId() + " " + formerName.getFormerName());
 
             // Se o formername existe e está associado ao id do personage, não persistir pois já existe no bd !!!!!!!!!!!!!!
-            if (!this.fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())) {
-                formerName.setPersonage(this.personage);
-                this.fnp.save(formerName);
+            if (!fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())) {
+                formerName.setPersonage(personage);
+                fnp.save(formerName);
 
             } else {
                 System.out.println(" FN já existe no bd\n");
@@ -98,44 +98,73 @@ public class GetCharacter {
         }
     }
 
-    private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = this.splitAndReplace(formerName, "[:,]");
-
-        // Se não existe é novo ou trocou de nick
-        if (!existsName) {
-            for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                String currentFormerName = splittedFormerNames[i].replaceFirst("^\\s+", "");
-                // pelo menos um former name existe na coluna de names? Name foi trocado
-                if (pp.existsByName(currentFormerName)) {
-                    this.personage = this.recoverPersonage(currentFormerName); // Puxa apenas a tabela principal Personage
-                    this.personage.setName(name); // Char existe mas name foi trocado
-                }
-                this.formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
-            }
-        }
-    }
-
+    /**
+     *
+     * @param itens A list containing all itens scrapped to be treated
+     */
     private void flowScript(List<String> itens) {
         String name = null;
 
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = this.splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
-                this.personage = this.recoverPersonage(name); // recupera personagem se existir
+                name = splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
+                personage = this.recoverPersonage(name); // recupera personagem se existir
 
                 if (this.personage == null) {
-                    this.needsPersistence = true;
-                    this.personage = new Personage(); // Instancia um novo objeto caso realmente for um personagem novo
-                    this.personage.setName(name); // set name
+                    needsPersistence = true;
+                    personage = new Personage(); // Instancia um novo objeto caso realmente for um personagem novo
+                    personage.setName(name); // set name
                 }
 
             } else if (item.contains(FORMERNAMES)) {
                 // se for falso, então é preciso checar os former names
-                this.existsName = this.personageValidator(name);
-                this.formerNameValidator(existsName, item, name);
+                existsName = personageValidator(name);
+                formerNameValidator(existsName, item, name);
+
+            } else if (item.matches(TITLE)) {
+                String title = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                System.out.println(title);
             }
         }
+    }
+
+    /**
+     *
+     * @param name Personage nickname
+     * @return true if name exists in database or false if not exists
+     */
+    private boolean personageValidator(String name) {
+        return pp.existsByName(name); // se existir, retorna verdadeiro
+    }
+
+    /**
+     * JAVADOC TODO
+     */
+    private void formerNameValidator(boolean existsName, String formerName, String name) {
+        String[] splittedFormerNames = splitAndReplace(formerName, "[:,]");
+
+        // Se não existe é novo ou trocou de nick
+        if (!existsName) {
+            for (int i = ITEM; i < splittedFormerNames.length; i++) {
+                String currentFormerName = replaceFirstSpace(splittedFormerNames[i]);
+                // pelo menos um former name existe na coluna de names? Name foi trocado
+                if (pp.existsByName(currentFormerName)) {
+                    personage = recoverPersonage(currentFormerName); // Puxa apenas a tabela principal Personage
+                    personage.setName(name); // Char existe mas name foi trocado
+                }
+                formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
+            }
+        }
+    }
+
+    /**
+     *
+     * @param name Personame nickname
+     * @return Personage object and its attrs - fetch lazy
+     */
+    private Personage recoverPersonage(String name) {
+        return pp.findByName(name);
     }
 
     /**
@@ -150,14 +179,10 @@ public class GetCharacter {
 
     /**
      *
-     * @param name personage nickname
-     * @return true if name exists in database or false if not exists
+     * @param str string to replace first index
+     * @return string treated without first index containing space
      */
-    private boolean personageValidator(String name) {
-        return this.pp.existsByName(name); // se existir, retorna verdadeiro
-    }
-
-    private Personage recoverPersonage(String name) {
-        return this.pp.findByName(name);
+    private String replaceFirstSpace(String str) {
+        return str.replaceFirst("^\\s+", "");
     }
 }

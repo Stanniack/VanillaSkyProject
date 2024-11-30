@@ -11,7 +11,11 @@ public class CalendarUtils {
 
     Calendar calendar;
 
-    public String getBrDate() {
+    /**
+     *
+     * @return local date yyyy-MM-dd HH:mm:ss
+     */
+    public String getDate() {
         calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(calendar.getTime());
