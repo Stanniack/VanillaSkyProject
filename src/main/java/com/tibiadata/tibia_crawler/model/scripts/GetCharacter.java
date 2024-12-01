@@ -3,8 +3,10 @@ package com.tibiadata.tibia_crawler.model.scripts;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
+import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
+import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +28,7 @@ public class GetCharacter {
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
+    private static final String SEX = "Sex:";
 
     private static final int ITEM = 1;
 
@@ -35,18 +39,23 @@ public class GetCharacter {
     private PersonagePersistence pp;
     @Autowired
     private FormerNamePersistence fnp;
+    @Autowired
+    private SexPersistence sr;
 
-    Calendar calendar;
+    private Calendar calendar;
 
     private Personage personage;
-    private final List<FormerName> formerNames = new ArrayList<>();
+    private List<FormerName> formerNames = new ArrayList<>();
+    private Sex sex = null;
 
-    private final GetContent getContent = new GetContent();
-    private final ElementsUtils elementUtils = new ElementsUtils();
+    private GetContent getContent;
+    private ElementsUtils elementUtils;
 
     public GetCharacter() {
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
+        this.getContent = new GetContent();
+        this.elementUtils = new ElementsUtils();
     }
 
     public void getCharacter(String url) {
@@ -54,8 +63,9 @@ public class GetCharacter {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
             if (!itens.isEmpty()) {
                 flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
-                persistPersonage(personage);
+                persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
                 persistFormerName(personage);
+                persistSex(personage);
             }
         } catch (IOException ex) {
             Logger.getLogger(GetCharacter.class.getName()).log(Level.SEVERE, null, ex);
@@ -66,6 +76,7 @@ public class GetCharacter {
         flowScript(itens);
         persistPersonage(personage);
         persistFormerName(personage);
+        persistSex(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -88,6 +99,7 @@ public class GetCharacter {
                     + " ID: " + p.getId() + " " + formerName.getFormerName());
 
             // Se o formername existe e está associado ao id do personage, não persistir pois já existe no bd !!!!!!!!!!!!!!
+            // Nova lógica: Se o FN existe e está associado ao id do personage e tem a mesma data de registro, não persistir. Caso contrário, persistir !!!!
             if (!fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())) {
                 formerName.setPersonage(personage);
                 fnp.save(formerName);
@@ -95,6 +107,14 @@ public class GetCharacter {
             } else {
                 System.out.println(" FN já existe no bd\n");
             }
+        }
+    }
+
+    private void persistSex(Personage p) {
+        // se sex != null então foi criado ou alterado
+        if (sex != null) {
+            sex.setPersonage(p);
+            sr.save(sex);
         }
     }
 
@@ -124,7 +144,11 @@ public class GetCharacter {
 
             } else if (item.matches(TITLE)) {
                 String title = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
-                System.out.println(title);
+                needsPersistence = titleValidator(title);
+
+            } else if (item.contains(SEX)) {
+                String genre = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                sexValidator(genre);
             }
         }
     }
@@ -155,6 +179,29 @@ public class GetCharacter {
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
             }
+        }
+    }
+
+    /**
+     * if Personage's title is null or changed, set the new title
+     *
+     * @param title current Personage's title
+     * @return true if needs persistence
+     */
+    private boolean titleValidator(String title) {
+        if (personage.getTitle() == null || !personage.getTitle().equals(title)) {
+            personage.setTitle(title);
+            return true;
+        }
+        return false;
+    }
+
+    private void sexValidator(String genre) {
+        Sex dbSex = sr.findLastSex(personage.getName());
+
+        // Se sex não existir ou sexo é !diferente, então trocou o sexo do personagem
+        if (dbSex == null || !dbSex.getGenre().equals(genre)) {
+            this.sex = new Sex(genre, Calendar.getInstance());
         }
     }
 
