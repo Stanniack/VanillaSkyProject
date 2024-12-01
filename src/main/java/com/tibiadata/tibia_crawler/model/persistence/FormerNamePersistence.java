@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class FormerNamePersistence {
 
     @Autowired
-    FormerNameRepository fnr;
+    private FormerNameRepository fnr;
 
     public FormerName save(FormerName formerName) {
         return fnr.save(formerName);

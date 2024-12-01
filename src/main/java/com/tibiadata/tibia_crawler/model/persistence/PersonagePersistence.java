@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class PersonagePersistence {
 
     @Autowired
-    PersonageRepository pp;
+    private PersonageRepository pp;
 
     public Personage save(Personage p) {
         return pp.save(p);
