@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PersonageRepository extends JpaRepository<Personage, Long> {
 
-    // SELECT p.registeredDate FROM Personage p WHERE p.name = :name
     @Query("SELECT p.registeredDate FROM Personage p WHERE p.name = :name")
     Calendar findRegisteredDateByName(@Param("name") String name);
 
