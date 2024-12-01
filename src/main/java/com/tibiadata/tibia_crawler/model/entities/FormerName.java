@@ -23,6 +23,7 @@ public class FormerName {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String formerName;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +32,7 @@ public class FormerName {
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar registeredDate;
+    private Calendar untilDateOf;
 
     /**
      * Hibernate needs a default constructor
@@ -41,13 +42,13 @@ public class FormerName {
 
     public FormerName(String formerName, Calendar registratedDate) {
         this.formerName = formerName;
-        this.registeredDate = registratedDate;
+        this.untilDateOf = registratedDate;
     }
 
     public FormerName(String formerName, Personage personage, Calendar registratedDate) {
         this.formerName = formerName;
         this.personage = personage;
-        this.registeredDate = registratedDate;
+        this.untilDateOf = registratedDate;
     }
 
     public String getFormerName() {
@@ -58,12 +59,12 @@ public class FormerName {
         this.formerName = formerName;
     }
 
-    public Calendar getRegisteredDate() {
-        return registeredDate;
+    public Calendar getUntilDateOf() {
+        return untilDateOf;
     }
 
-    public void setRegisteredDate(Calendar registeredDate) {
-        this.registeredDate = registeredDate;
+    public void setUntilDateOf(Calendar untilDateOf) {
+        this.untilDateOf = untilDateOf;
     }
 
     public Integer getId() {
