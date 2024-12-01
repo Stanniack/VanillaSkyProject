@@ -27,12 +27,19 @@ public class Personage {
     @Column(nullable = false, unique = true)
     private String name;
 
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<FormerName> formerNames = new ArrayList<>();
+
+    @Column(nullable = false)
+    private String title;
+
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<FormerName> sexes = new ArrayList<>();
+
+    /**/
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar registeredDate;
-
-    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
-    private List<FormerName> formerNames = new ArrayList<>(); // Inicialização da lista
 
     /**
      * Hibernate needs a default constructor
@@ -75,6 +82,22 @@ public class Personage {
     @Override
     public String toString() {
         return "Personage{" + "name=" + name + ", registratedDate=" + registeredDate + ", formerNames=" + formerNames + '}';
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public List<FormerName> getSexes() {
+        return sexes;
+    }
+
+    public void setSexes(List<FormerName> sexes) {
+        this.sexes = sexes;
     }
 
 }
