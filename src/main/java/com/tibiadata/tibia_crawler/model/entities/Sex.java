@@ -26,7 +26,7 @@ public class Sex {
     @Column(nullable = false)
     private String genre;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
     private Personage personage;
 
