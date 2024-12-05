@@ -16,7 +16,4 @@ public interface PersonageRepository extends JpaRepository<Personage, Long> {
     Personage findByName(String name);
 
     boolean existsByName(String name);
-
-    @Query("SELECT p.id FROM Personage p WHERE p.name = :name")
-    Integer findIdByName(@Param("name") String name);
 }
