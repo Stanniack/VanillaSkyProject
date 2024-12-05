@@ -26,7 +26,7 @@ public class FormerName {
     @Column(nullable = false)
     private String formerName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
     private Personage personage;
 
