@@ -34,11 +34,17 @@ public class CalendarUtils {
         return converted;
     }
 
+    /**
+     * @param date1 compare to date 2
+     * @param date2 is compared with date 1
+     * @return true if the comparison between date1 and date2 is greater/equal
+     * than 180 days
+     */
     public boolean isDifferenceGreaterThan180Days(Calendar date1, Calendar date2) {
         long diffInMillis = Math.abs(date1.getTimeInMillis() - date2.getTimeInMillis()); // Calcular a diferença em milissegundos
         long diffInDays = diffInMillis / (24 * 60 * 60 * 1000); // Converter milissegundos para dias (1 dia = 86400000 milissegundos)
         return diffInDays >= 180; // Verificar se a diferença é maior ou igual a 180 dias
     }
-    
+
     // TODO método com input string MM/DD/YYYY e retorna um Calendar/Date formatado com essa data
 }
