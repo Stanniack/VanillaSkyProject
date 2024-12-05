@@ -7,6 +7,7 @@ import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
+import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,14 +15,16 @@ import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.context.annotation.Scope;
 
 /**
  *
  * @author Devmachine
  */
+@Scope("prototype")
 @Service
 public class GetCharacter {
 
@@ -32,8 +35,9 @@ public class GetCharacter {
 
     private static final int ITEM = 1;
 
-    boolean existsName = false;
-    boolean needsPersistence = false;
+    private boolean existsName = false;
+    private boolean needsPersistence = false;
+    private String oldName;
 
     @Autowired
     private PersonagePersistence pp;
@@ -50,12 +54,14 @@ public class GetCharacter {
 
     private GetContent getContent;
     private ElementsUtils elementUtils;
+    private CalendarUtils calendarUtils;
 
     public GetCharacter() {
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
         this.getContent = new GetContent();
         this.elementUtils = new ElementsUtils();
+        this.calendarUtils = new CalendarUtils();
     }
 
     public void getCharacter(String url) {
@@ -63,9 +69,7 @@ public class GetCharacter {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
             if (!itens.isEmpty()) {
                 flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
-                persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
-                persistFormerName(personage);
-                persistSex(personage);
+                persistAll();
             }
         } catch (IOException ex) {
             Logger.getLogger(GetCharacter.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,7 +78,11 @@ public class GetCharacter {
 
     public void getCharacter(List<String> itens) {
         flowScript(itens);
-        persistPersonage(personage);
+        persistAll();
+    }
+
+    private void persistAll() {
+        persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
         persistFormerName(personage);
         persistSex(personage);
     }
@@ -110,6 +118,32 @@ public class GetCharacter {
         }
     }
 
+    private void persistFormerName2(Personage p) {
+        System.out.println(formerNames.size());
+
+        for (FormerName formerName : formerNames) {
+            Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName());
+            boolean greatherThan180days
+                    = date != null
+                            ? calendarUtils
+                                    .isDifferenceGreaterThan180Days(calendarUtils.convertToCalendar(date), calendar) : false; // chama o bd só se date != null
+
+            boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
+
+            // Se o former name NÃO existe, persistir
+            // ou a data do último FN EXISTE associada ao Personage e a data de registro for maior ou igual a 180 dias, persistir.
+            if (!isFnExists || (date != null && greatherThan180days)) {
+                formerName.setPersonage(personage);
+                fnp.save(formerName);
+
+            } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
+                System.out.println(" FN já existe no bd\n");
+            }
+
+            System.out.println(formerName);
+        }
+    }
+
     private void persistSex(Personage p) {
         // se sex != null então foi criado ou alterado
         if (sex != null) {
@@ -123,43 +157,41 @@ public class GetCharacter {
      * @param itens A list containing all itens scrapped to be treated
      */
     private void flowScript(List<String> itens) {
+        Personage recoveredPersonage = null;
         String name = null;
 
         for (String item : itens) {
 
             if (item.contains(NAME)) {
                 name = splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
-                personage = this.recoverPersonage(name); // recupera personagem se existir
+                recoveredPersonage = this.recoverPersonage(name); // recupera personagem se existir
 
-                if (this.personage == null) {
+                if (recoveredPersonage == null) {
                     needsPersistence = true;
                     personage = new Personage(); // Instancia um novo objeto caso realmente for um personagem novo
                     personage.setName(name); // set name
+                } else {
+                    personage = recoveredPersonage;
                 }
 
             } else if (item.contains(FORMERNAMES)) {
-                // se for falso, então é preciso checar os former names
-                existsName = personageValidator(name);
+                existsName = recoveredPersonage != null; // se for falso, o personagem existe mas trocou de nome
                 formerNameValidator(existsName, item, name);
 
             } else if (item.matches(TITLE)) {
                 String title = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
-                needsPersistence = titleValidator(title);
+
+                if (!needsPersistence) {
+                    needsPersistence = titleValidator(title);
+                } else {
+                    titleValidator(title);
+                }
 
             } else if (item.contains(SEX)) {
                 String genre = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
                 sexValidator(genre);
             }
         }
-    }
-
-    /**
-     *
-     * @param name Personage nickname
-     * @return true if name exists in database or false if not exists
-     */
-    private boolean personageValidator(String name) {
-        return pp.existsByName(name); // se existir, retorna verdadeiro
     }
 
     /**
@@ -172,8 +204,10 @@ public class GetCharacter {
         if (!existsName) {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
                 String currentFormerName = replaceFirstSpace(splittedFormerNames[i]);
+
                 // pelo menos um former name existe na coluna de names? Name foi trocado
                 if (pp.existsByName(currentFormerName)) {
+                    oldName = currentFormerName; // Guarda antigo name para validações de atributos posteriores
                     personage = recoverPersonage(currentFormerName); // Puxa apenas a tabela principal Personage
                     personage.setName(name); // Char existe mas name foi trocado
                 }
@@ -197,7 +231,8 @@ public class GetCharacter {
     }
 
     private void sexValidator(String genre) {
-        Sex dbSex = sr.findLastSex(personage.getName());
+        // Se oldName existir, então verifica os gêneros do antigo name
+        Sex dbSex = (oldName != null) ? sr.findLastSex(oldName) : sr.findLastSex(personage.getName());
 
         // Se sex não existir ou sexo é !diferente, então trocou o sexo do personagem
         if (dbSex == null || !dbSex.getGenre().equals(genre)) {
