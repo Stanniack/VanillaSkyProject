@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.context.annotation.Scope;
@@ -32,6 +34,7 @@ public class CharacterService {
     private static final String FORMERNAMES = "Former Names:";
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
     private static final String SEX = "Sex:";
+    private static final String VOCATION = "Vocation:";
 
     private static final int ITEM = 1;
 
@@ -122,11 +125,9 @@ public class CharacterService {
         for (FormerName formerName : formerNames) {
             Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
 
+            // chama o bd só se date != null
             boolean greatherThan180days
-                    = date != null
-                            ? calendarUtils
-                                    .isDifferenceGreaterThan180Days(calendarUtils.convertToCalendar(date), calendar) : false; // chama o bd só se date != null
-            System.out.println("greatherThan180days? " + greatherThan180days);
+                    = (date != null) ? calendarUtils.greaterThan180Days(calendar, calendarUtils.convertToCalendar(date)) : false;
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
@@ -179,17 +180,15 @@ public class CharacterService {
 
             } else if (item.matches(TITLE)) {
                 String title = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
-
-                // !!!!!!
-                if (!needsPersistence) {
-                    needsPersistence = titleValidator(title);
-                } else {
-                    titleValidator(title);
-                }
+                persistenceValidator(personage::getTitle, Personage::setTitle, title);
 
             } else if (item.contains(SEX)) {
                 String genre = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
                 sexValidator(genre);
+
+            } else if (item.contains(VOCATION)) {
+                String vocation = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
             }
         }
     }
@@ -217,20 +216,6 @@ public class CharacterService {
     }
 
     /**
-     * if Personage's title is null or changed, set the new title
-     *
-     * @param title current Personage's title
-     * @return true if needs persistence
-     */
-    private boolean titleValidator(String title) {
-        if (personage.getTitle() == null || !personage.getTitle().equals(title)) {
-            personage.setTitle(title);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * @param genre Personage' genre
      */
     private void sexValidator(String genre) {
@@ -241,6 +226,28 @@ public class CharacterService {
         if (dbSex == null || !dbSex.getGenre().equals(genre)) {
             this.sex = new Sex(genre, Calendar.getInstance());
         }
+    }
+
+    /**
+     * Validates and updates a string attribute if it is null or different from
+     * a new value.
+     *
+     * @param getter a Supplier that retrieves the current value of the
+     * attribute.
+     * @param setter a BiConsumer that sets the new value for the attribute.
+     * @param newValue the new value to be validated and potentially set.
+     * @return {@code true} if the attribute was updated; {@code false}
+     * otherwise.
+     */
+    private boolean attributeValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
+        String currentValue = getter.get(); // Obtém o valor atual do atributo usando o getter
+
+        // Verifica se o valor atual é nulo ou diferente do novo valor
+        if (currentValue == null || !currentValue.equals(newValue)) {
+            setter.accept(personage, newValue); // Atualiza o atributo usando o setter
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -270,4 +277,21 @@ public class CharacterService {
     private String replaceFirstSpace(String str) {
         return str.replaceFirst("^\\s+", "");
     }
+
+    /**
+     * Validates and updates an attribute, handling the needsPersistence logic.
+     *
+     * @param needsPersistence the current state of the persistence flag.
+     * @param getter a Supplier to retrieve the current attribute value.
+     * @param setter a BiConsumer to set the new attribute value.
+     * @param newValue the new value to validate and potentially set.
+     */
+    private void persistenceValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
+        if (!needsPersistence) {
+            needsPersistence = attributeValidator(getter, setter, newValue); //verifica se é true ou false
+        } else {
+            attributeValidator(getter, setter, newValue); //needsPersistence permanece true
+        }
+    }
+
 }
