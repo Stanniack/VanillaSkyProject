@@ -83,11 +83,12 @@ public class GetCharacter {
 
     private void persistAll() {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
-        persistFormerName(personage);
+        persistFormerName2(personage);
         persistSex(personage);
     }
 
     private void persistPersonage(Personage p) {
+
         if (needsPersistence) {
             System.out.println("\n" + p.getName() + " persistido");
             if (p.getRegisteredDate() == null) {
@@ -98,35 +99,34 @@ public class GetCharacter {
         } else {
             System.out.println("Personage " + personage.getName() + " não precisa de persistência");
         }
+
     }
 
     private void persistFormerName(Personage p) {
+
         for (FormerName formerName : formerNames) {
-
-            System.out.print("\n" + fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())
-                    + " ID: " + p.getId() + " " + formerName.getFormerName());
-
             // Se o formername existe e está associado ao id do personage, não persistir pois já existe no bd !!!!!!!!!!!!!!
-            // Nova lógica: Se o FN existe e está associado ao id do personage e tem a mesma data de registro, não persistir. Caso contrário, persistir !!!!
             if (!fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())) {
                 formerName.setPersonage(personage);
                 fnp.save(formerName);
 
-            } else {
+            } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
                 System.out.println(" FN já existe no bd\n");
             }
         }
+
     }
 
     private void persistFormerName2(Personage p) {
-        System.out.println(formerNames.size());
 
         for (FormerName formerName : formerNames) {
-            Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName());
+            Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
+
             boolean greatherThan180days
                     = date != null
                             ? calendarUtils
                                     .isDifferenceGreaterThan180Days(calendarUtils.convertToCalendar(date), calendar) : false; // chama o bd só se date != null
+            System.out.println("greatherThan180days? " + greatherThan180days);
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
@@ -137,11 +137,10 @@ public class GetCharacter {
                 fnp.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
-                System.out.println(" FN já existe no bd\n");
+                System.out.println("FN já existe no bd\n");
             }
-
-            System.out.println(formerName);
         }
+
     }
 
     private void persistSex(Personage p) {
@@ -171,7 +170,7 @@ public class GetCharacter {
                     personage = new Personage(); // Instancia um novo objeto caso realmente for um personagem novo
                     personage.setName(name); // set name
                 } else {
-                    personage = recoveredPersonage;
+                    personage = recoveredPersonage; // personagem existe no bd
                 }
 
             } else if (item.contains(FORMERNAMES)) {
@@ -181,6 +180,7 @@ public class GetCharacter {
             } else if (item.matches(TITLE)) {
                 String title = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
 
+                // !!!!!!
                 if (!needsPersistence) {
                     needsPersistence = titleValidator(title);
                 } else {
@@ -205,11 +205,11 @@ public class GetCharacter {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
                 String currentFormerName = replaceFirstSpace(splittedFormerNames[i]);
 
-                // pelo menos um former name existe na coluna de names? Name foi trocado
+                // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
-                    oldName = currentFormerName; // Guarda antigo name para validações de atributos posteriores
-                    personage = recoverPersonage(currentFormerName); // Puxa apenas a tabela principal Personage
-                    personage.setName(name); // Char existe mas name foi trocado
+                    oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
+                    personage = recoverPersonage(currentFormerName); // Puxa o personagem existente com o antigo nome
+                    personage.setName(name); // Seta novo nome
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
             }
@@ -230,8 +230,11 @@ public class GetCharacter {
         return false;
     }
 
+    /**
+     * @param genre Personage' genre
+     */
     private void sexValidator(String genre) {
-        // Se oldName existir, então verifica os gêneros do antigo name
+        // Se oldName existir, então verifica o último gênero do antigo name
         Sex dbSex = (oldName != null) ? sr.findLastSex(oldName) : sr.findLastSex(personage.getName());
 
         // Se sex não existir ou sexo é !diferente, então trocou o sexo do personagem
