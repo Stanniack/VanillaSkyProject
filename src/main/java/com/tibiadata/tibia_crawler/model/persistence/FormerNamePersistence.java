@@ -2,6 +2,7 @@ package com.tibiadata.tibia_crawler.model.persistence;
 
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.repositories.FormerNameRepository;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,10 @@ public class FormerNamePersistence {
 
     public boolean isFormerNameFromPersonage(String formerName, Integer personageID) {
         return fnr.isFormerNameFromPersonage(formerName, personageID);
+    }
+
+    public Date findDateOfLastFormerNameRegistered(String formerName) {
+        return fnr.findDateOfLastFormerNameRegistered(formerName);
     }
 
 }
