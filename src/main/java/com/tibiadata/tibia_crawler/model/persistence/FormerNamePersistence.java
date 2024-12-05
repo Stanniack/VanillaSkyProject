@@ -24,8 +24,8 @@ public class FormerNamePersistence {
         return fnr.isFormerNameFromPersonage(formerName, personageID);
     }
 
-    public Date findDateOfLastFormerNameRegistered(String formerName) {
-        return fnr.findDateOfLastFormerNameRegistered(formerName);
+    public Date findDateOfLastFormerNameRegistered(String formerName, Integer personageID) {
+        return fnr.findDateOfLastFormerNameRegistered(formerName, personageID);
     }
 
 }
