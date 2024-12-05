@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Scope;
  */
 @Scope("prototype")
 @Service
-public class GetCharacter {
+public class CharacterService {
 
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
@@ -56,7 +56,7 @@ public class GetCharacter {
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
 
-    public GetCharacter() {
+    public CharacterService() {
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
         this.getContent = new GetContent();
@@ -64,7 +64,7 @@ public class GetCharacter {
         this.calendarUtils = new CalendarUtils();
     }
 
-    public void getCharacter(String url) {
+    public void fetchCharacter(String url) {
         try {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
             if (!itens.isEmpty()) {
@@ -72,11 +72,11 @@ public class GetCharacter {
                 persistAll();
             }
         } catch (IOException ex) {
-            Logger.getLogger(GetCharacter.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void getCharacter(List<String> itens) {
+    public void fetchCharacter(List<String> itens) {
         flowScript(itens);
         persistAll();
     }
