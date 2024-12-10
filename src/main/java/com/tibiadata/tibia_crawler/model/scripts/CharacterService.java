@@ -238,20 +238,20 @@ public class CharacterService {
      */
     private void sexValidator(String genre) {
         // Se oldName existir, então verifica o último gênero do antigo name
-        Sex dbSex = (oldName != null) ? sp.findLastSex(oldName) : sp.findLastSex(personage.getName());
+        String dbGenre = (oldName != null) ? sp.findLastSex(oldName) : sp.findLastSex(personage.getName());
 
         // Se sex não existir ou sexo é diferente, então trocou o sexo do personagem
-        if (dbSex == null || !dbSex.getGenre().equals(genre)) {
+        if (dbGenre == null || !dbGenre.equals(genre)) {
             this.sex = new Sex(genre, Calendar.getInstance());
         }
     }
     
-    private void levelProgressValidator(String currentLevel){
+    private void levelProgressValidator(String level){
         String dbLevel = (oldName != null) ? lpp.findLastLevelProgress(oldName) : lpp.findLastLevelProgress(personage.getName());
         
         // Se nível buscado no db é null ou não é igual ao atual nível
-        if (dbLevel == null || !dbLevel.equals(currentLevel)){
-            this.levelProgress = new LevelProgress(currentLevel, Calendar.getInstance());
+        if (dbLevel == null || !dbLevel.equals(level)){
+            this.levelProgress = new LevelProgress(level, Calendar.getInstance());
         }
     }
 
