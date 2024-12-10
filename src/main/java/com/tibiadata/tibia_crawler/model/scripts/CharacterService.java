@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,7 +81,7 @@ public class CharacterService {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
             if (!itens.isEmpty()) {
                 flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
-                persistAll();
+                handlerPersister();
             }
         } catch (IOException ex) {
             Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, null, ex);
@@ -87,14 +90,14 @@ public class CharacterService {
 
     public void fetchCharacter(List<String> itens) {
         flowScript(itens);
-        persistAll();
+        handlerPersister();
     }
 
-    private void persistAll() {
+    private void handlerPersister() {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
         persistFormerName2(personage);
-        persistSex(personage);
-        persistLevelProgress(personage);
+        persistObject(sex, s -> s.setPersonage(personage), s -> sp.save(s));
+        persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
     }
 
     private void persistPersonage(Personage p) {
@@ -151,18 +154,11 @@ public class CharacterService {
 
     }
 
-    private void persistSex(Personage p) {
-        // se sex != null então foi criado ou alterado
-        if (sex != null) {
-            sex.setPersonage(p);
-            sp.save(sex);
-        }
-    }
-    
-    private void persistLevelProgress(Personage p){
-        if (levelProgress != null) {
-            levelProgress.setPersonage(p);
-            lpp.save(levelProgress);
+    private <T> void persistObject(T object, Consumer<T> setPersonage, Consumer<T> dbPersister) {
+        // Se for diferente de nulo, então foi criado ou alterado
+        if (object != null) {
+            setPersonage.accept(object); //object.setPersonage(personage)
+            dbPersister.accept(object); // persistence.save(object)
         }
     }
 
@@ -198,7 +194,12 @@ public class CharacterService {
 
             } else if (item.contains(SEX)) {
                 String genre = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
-                sexValidator(genre);
+
+                objectValidator(
+                        genre,
+                        param -> sp.findLastSex(param),
+                        (value, date) -> new Sex(value, date),
+                        newSex -> this.sex = newSex);
 
             } else if (item.contains(VOCATION)) {
                 String vocation = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
@@ -206,14 +207,16 @@ public class CharacterService {
 
             } else if (item.contains(LEVEL)) {
                 String level = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
-                levelProgressValidator(level);
+
+                objectValidator(
+                        level,
+                        param -> lpp.findLastLevelProgress(param),
+                        (value, date) -> new LevelProgress(value, date),
+                        newLevelProgress -> this.levelProgress = newLevelProgress);
             }
         }
     }
 
-    /**
-     * JAVADOC TODO
-     */
     private void formerNameValidator(boolean existsName, String formerName, String name) {
         String[] splittedFormerNames = splitAndReplace(formerName, "[:,]");
 
@@ -233,25 +236,14 @@ public class CharacterService {
         }
     }
 
-    /**
-     * @param genre Personage' genre
-     */
-    private void sexValidator(String genre) {
-        // Se oldName existir, então verifica o último gênero do antigo name
-        String dbGenre = (oldName != null) ? sp.findLastSex(oldName) : sp.findLastSex(personage.getName());
+    private <T> void objectValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
+        // Se oldName existir, então verifica o último valor do antigo name
+        String dbValue = (oldName != null) ? dbPersister.apply(oldName) : dbPersister.apply(personage.getName());
 
-        // Se sex não existir ou sexo é diferente, então trocou o sexo do personagem
-        if (dbGenre == null || !dbGenre.equals(genre)) {
-            this.sex = new Sex(genre, Calendar.getInstance());
-        }
-    }
-    
-    private void levelProgressValidator(String level){
-        String dbLevel = (oldName != null) ? lpp.findLastLevelProgress(oldName) : lpp.findLastLevelProgress(personage.getName());
-        
-        // Se nível buscado no db é null ou não é igual ao atual nível
-        if (dbLevel == null || !dbLevel.equals(level)){
-            this.levelProgress = new LevelProgress(level, Calendar.getInstance());
+        // Se valor buscado no db é null ou não é igual o valor atual, setar valor atual para persistência
+        if (dbValue == null || !dbValue.equals(newValue)) {
+            T newObject = object.apply(newValue, Calendar.getInstance());
+            setter.accept(newObject);
         }
     }
 
@@ -275,6 +267,22 @@ public class CharacterService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Validates and updates an attribute, handling the needsPersistence logic.
+     *
+     * @param needsPersistence the current state of the persistence flag.
+     * @param getter a Supplier to retrieve the current attribute value.
+     * @param setter a BiConsumer to set the new attribute value.
+     * @param newValue the new value to validate and potentially set.
+     */
+    private void persistenceValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
+        if (!needsPersistence) {
+            needsPersistence = attributeValidator(getter, setter, newValue); //verifica se é true ou false
+        } else {
+            attributeValidator(getter, setter, newValue); //needsPersistence permanece true
+        }
     }
 
     /**
@@ -303,22 +311,6 @@ public class CharacterService {
      */
     private String replaceFirstSpace(String str) {
         return str.replaceFirst("^\\s+", "");
-    }
-
-    /**
-     * Validates and updates an attribute, handling the needsPersistence logic.
-     *
-     * @param needsPersistence the current state of the persistence flag.
-     * @param getter a Supplier to retrieve the current attribute value.
-     * @param setter a BiConsumer to set the new attribute value.
-     * @param newValue the new value to validate and potentially set.
-     */
-    private void persistenceValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
-        if (!needsPersistence) {
-            needsPersistence = attributeValidator(getter, setter, newValue); //verifica se é true ou false
-        } else {
-            attributeValidator(getter, setter, newValue); //needsPersistence permanece true
-        }
     }
 
 }
