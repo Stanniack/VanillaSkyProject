@@ -20,7 +20,7 @@ public class SexPersistence {
      * @param personageName Personage's name to find his last genre setted
      * @return last Personage's genre type registered
      */
-    public Sex findLastSex(String personageName) {
+    public String findLastSex(String personageName) {
         return sr.findLastSex(personageName);
     }
 
