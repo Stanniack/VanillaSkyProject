@@ -11,3 +11,4 @@ src/main/java/com/tibiadata/tibia_crawler/model/connections/Main.java
 src/main/java/com/tibiadata/tibia_crawler/model/connections/Main2.java
 src/main/java/com/tibiadata/tibia_crawler/model/connections/Main3.java
 src/main/java/com/tibiadata/tibia_crawler/model/connections/Main4.java
+src/main/java/com/tibiadata/tibia_crawler/model/connections/NewClass.java
