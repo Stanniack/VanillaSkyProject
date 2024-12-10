@@ -7,7 +7,7 @@
 HELP.md
 mvnw
 mvnw.cmd
-src/main/java/com/tibiadata/tibia_crawler/Main.java
-src/main/java/com/tibiadata/tibia_crawler/Main2.java
-src/main/java/com/tibiadata/tibia_crawler/Main3.java
-src/main/java/com/tibiadata/tibia_crawler/Main4.java
+src/main/java/com/tibiadata/tibia_crawler/model/connections/Main.java
+src/main/java/com/tibiadata/tibia_crawler/model/connections/Main2.java
+src/main/java/com/tibiadata/tibia_crawler/model/connections/Main3.java
+src/main/java/com/tibiadata/tibia_crawler/model/connections/Main4.java
