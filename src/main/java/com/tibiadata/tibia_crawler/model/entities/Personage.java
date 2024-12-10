@@ -36,6 +36,12 @@ public class Personage {
     @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
     private List<FormerName> sexes = new ArrayList<>();
 
+    @Column(nullable = false)
+    private String vocation;
+
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<LevelProgress> levelProgresses = new ArrayList<>();
+
     /**/
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -98,6 +104,22 @@ public class Personage {
 
     public void setSexes(List<FormerName> sexes) {
         this.sexes = sexes;
+    }
+
+    public String getVocation() {
+        return vocation;
+    }
+
+    public void setVocation(String vocation) {
+        this.vocation = vocation;
+    }
+
+    public List<LevelProgress> getLevelProgresses() {
+        return levelProgresses;
+    }
+
+    public void setLevelProgresses(List<LevelProgress> levelProgresses) {
+        this.levelProgresses = levelProgresses;
     }
 
 }
