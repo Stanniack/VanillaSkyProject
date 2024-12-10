@@ -2,9 +2,11 @@ package com.tibiadata.tibia_crawler.model.scripts;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
+import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
+import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
@@ -35,6 +37,7 @@ public class CharacterService {
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
     private static final String SEX = "Sex:";
     private static final String VOCATION = "Vocation:";
+    private static final String LEVEL = "Level:";
 
     private static final int ITEM = 1;
 
@@ -47,13 +50,16 @@ public class CharacterService {
     @Autowired
     private FormerNamePersistence fnp;
     @Autowired
-    private SexPersistence sr;
+    private SexPersistence sp;
+    @Autowired
+    private LevelProgressPersistence lpp;
 
     private Calendar calendar;
 
     private Personage personage;
     private List<FormerName> formerNames = new ArrayList<>();
     private Sex sex = null;
+    private LevelProgress levelProgress = null;
 
     private GetContent getContent;
     private ElementsUtils elementUtils;
@@ -88,6 +94,7 @@ public class CharacterService {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
         persistFormerName2(personage);
         persistSex(personage);
+        persistLevelProgress(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -148,7 +155,14 @@ public class CharacterService {
         // se sex != null então foi criado ou alterado
         if (sex != null) {
             sex.setPersonage(p);
-            sr.save(sex);
+            sp.save(sex);
+        }
+    }
+    
+    private void persistLevelProgress(Personage p){
+        if (levelProgress != null) {
+            levelProgress.setPersonage(p);
+            lpp.save(levelProgress);
         }
     }
 
@@ -189,6 +203,10 @@ public class CharacterService {
             } else if (item.contains(VOCATION)) {
                 String vocation = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
+
+            } else if (item.contains(LEVEL)) {
+                String level = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                levelProgressValidator(level);
             }
         }
     }
@@ -220,11 +238,20 @@ public class CharacterService {
      */
     private void sexValidator(String genre) {
         // Se oldName existir, então verifica o último gênero do antigo name
-        Sex dbSex = (oldName != null) ? sr.findLastSex(oldName) : sr.findLastSex(personage.getName());
+        Sex dbSex = (oldName != null) ? sp.findLastSex(oldName) : sp.findLastSex(personage.getName());
 
-        // Se sex não existir ou sexo é !diferente, então trocou o sexo do personagem
+        // Se sex não existir ou sexo é diferente, então trocou o sexo do personagem
         if (dbSex == null || !dbSex.getGenre().equals(genre)) {
             this.sex = new Sex(genre, Calendar.getInstance());
+        }
+    }
+    
+    private void levelProgressValidator(String currentLevel){
+        String dbLevel = (oldName != null) ? lpp.findLastLevelProgress(oldName) : lpp.findLastLevelProgress(personage.getName());
+        
+        // Se nível buscado no db é null ou não é igual ao atual nível
+        if (dbLevel == null || !dbLevel.equals(currentLevel)){
+            this.levelProgress = new LevelProgress(currentLevel, Calendar.getInstance());
         }
     }
 
