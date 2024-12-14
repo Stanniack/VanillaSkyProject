@@ -6,11 +6,13 @@ import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
+import com.tibiadata.tibia_crawler.model.entities.World;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
+import com.tibiadata.tibia_crawler.model.persistence.WorldPersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,7 @@ public class CharacterService {
     private static final String VOCATION = "Vocation:";
     private static final String LEVEL = "Level:";
     private static final String ACHIEVEMENTS = "Achievement Points:";
+    private static final String WORLD = "World:";
 
     private static final int ITEM = 1;
 
@@ -61,6 +64,8 @@ public class CharacterService {
     private LevelProgressPersistence lpp;
     @Autowired
     private AchievementsPersistence ap;
+    @Autowired
+    private WorldPersistence wp;
 
     private Calendar calendar;
 
@@ -69,7 +74,8 @@ public class CharacterService {
     private Sex sex = null;
     private LevelProgress levelProgress = null;
     private Achievements achievements = null;
-
+    private World world = null;
+    
     private GetContent getContent;
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
@@ -105,6 +111,7 @@ public class CharacterService {
         persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
         persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
         persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
+        persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
     }
 
     private void persistPersonage(Personage p) {
@@ -178,6 +185,11 @@ public class CharacterService {
         String name = null;
 
         for (String item : itens) {
+            
+            // Criar método auxiliar para reordenar a lista de strings
+            // TODO NAME AND FORMER NAMES
+            // TODO FLOW ATTRIBUTES
+            // TODO FLOW OBJECTS
 
             if (item.contains(NAME)) {
                 name = splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
@@ -228,6 +240,14 @@ public class CharacterService {
                         param -> ap.findLastPoints(param),
                         (value, date) -> new Achievements(value, date),
                         newAchievements -> this.achievements = newAchievements);
+
+            } else if (item.contains(WORLD)) {
+                String server = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                objectValidator(
+                        server,
+                        param -> wp.findLastWorld(param),
+                        (value, date) -> new World(value, date),
+                        newWorld -> this.world = newWorld);
             }
 
         }
