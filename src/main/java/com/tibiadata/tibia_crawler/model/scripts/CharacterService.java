@@ -1,10 +1,12 @@
 package com.tibiadata.tibia_crawler.model.scripts;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
+import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
+import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
@@ -41,6 +43,7 @@ public class CharacterService {
     private static final String SEX = "Sex:";
     private static final String VOCATION = "Vocation:";
     private static final String LEVEL = "Level:";
+    private static final String ACHIEVEMENTS = "Achievement Points:";
 
     private static final int ITEM = 1;
 
@@ -56,6 +59,8 @@ public class CharacterService {
     private SexPersistence sp;
     @Autowired
     private LevelProgressPersistence lpp;
+    @Autowired
+    private AchievementsPersistence ap;
 
     private Calendar calendar;
 
@@ -63,6 +68,7 @@ public class CharacterService {
     private List<FormerName> formerNames = new ArrayList<>();
     private Sex sex = null;
     private LevelProgress levelProgress = null;
+    private Achievements achievements = null;
 
     private GetContent getContent;
     private ElementsUtils elementUtils;
@@ -96,8 +102,9 @@ public class CharacterService {
     private void handlerPersister() {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
         persistFormerName2(personage);
-        persistObject(sex, s -> s.setPersonage(personage), s -> sp.save(s));
+        persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
         persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
+        persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
     }
 
     private void persistPersonage(Personage p) {
@@ -213,7 +220,16 @@ public class CharacterService {
                         param -> lpp.findLastLevelProgress(param),
                         (value, date) -> new LevelProgress(value, date),
                         newLevelProgress -> this.levelProgress = newLevelProgress);
+
+            } else if (item.contains(ACHIEVEMENTS)) {
+                String points = replaceFirstSpace(splitAndReplace(item, ":")[ITEM]);
+                objectValidator(
+                        points,
+                        param -> ap.findLastPoints(param),
+                        (value, date) -> new Achievements(value, date),
+                        newAchievements -> this.achievements = newAchievements);
             }
+
         }
     }
 

@@ -42,6 +42,9 @@ public class Personage {
     @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
     private List<LevelProgress> levelProgresses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<Achievements> achievements = new ArrayList<>();
+
     /**/
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -120,6 +123,14 @@ public class Personage {
 
     public void setLevelProgresses(List<LevelProgress> levelProgresses) {
         this.levelProgresses = levelProgresses;
+    }
+
+    public List<Achievements> getAchievements() {
+        return achievements;
+    }
+
+    public void setAchievements(List<Achievements> achievements) {
+        this.achievements = achievements;
     }
 
 }
