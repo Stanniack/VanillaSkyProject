@@ -32,7 +32,7 @@ public class Sex {
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar untilDateOf;
+    private Calendar changeDate;
 
     /**
      * Hibernate needs a default constructor
@@ -42,7 +42,7 @@ public class Sex {
 
     public Sex(String genre, Calendar untilDateOf) {
         this.genre = genre;
-        this.untilDateOf = untilDateOf;
+        this.changeDate = untilDateOf;
     }
 
     public String getGenre() {
@@ -53,12 +53,12 @@ public class Sex {
         this.genre = genre;
     }
 
-    public Calendar getUntilDateOf() {
-        return untilDateOf;
+    public Calendar getChangeDate() {
+        return changeDate;
     }
 
-    public void setUntilDateOf(Calendar untilDateOf) {
-        this.untilDateOf = untilDateOf;
+    public void setChangeDate(Calendar changeDate) {
+        this.changeDate = changeDate;
     }
 
     public Personage getPersonage() {

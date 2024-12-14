@@ -32,7 +32,7 @@ public class FormerName {
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Calendar untilDateOf;
+    private Calendar changeDate;
 
     /**
      * Hibernate needs a default constructor
@@ -42,13 +42,13 @@ public class FormerName {
 
     public FormerName(String formerName, Calendar registratedDate) {
         this.formerName = formerName;
-        this.untilDateOf = registratedDate;
+        this.changeDate = registratedDate;
     }
 
     public FormerName(String formerName, Personage personage, Calendar registratedDate) {
         this.formerName = formerName;
         this.personage = personage;
-        this.untilDateOf = registratedDate;
+        this.changeDate = registratedDate;
     }
 
     public String getFormerName() {
@@ -59,12 +59,12 @@ public class FormerName {
         this.formerName = formerName;
     }
 
-    public Calendar getUntilDateOf() {
-        return untilDateOf;
+    public Calendar getChangeDate() {
+        return changeDate;
     }
 
-    public void setUntilDateOf(Calendar untilDateOf) {
-        this.untilDateOf = untilDateOf;
+    public void setChangeDate(Calendar changeDate) {
+        this.changeDate = changeDate;
     }
 
     public Integer getId() {
