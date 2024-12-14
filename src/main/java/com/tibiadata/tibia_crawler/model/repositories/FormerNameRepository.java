@@ -19,7 +19,7 @@ public interface FormerNameRepository extends JpaRepository<FormerName, Long> {
     @Query("SELECT COUNT(fn) > 0 FROM FormerName fn WHERE fn.formerName = :formerName AND fn.personage.id = :personageID")
     boolean isFormerNameFromPersonage(@Param("formerName") String formerName, @Param("personageID") Integer personageID);
 
-    @Query(value = "SELECT until_date_of FROM former_name WHERE former_name = :formerName AND parent_id = :personageID ORDER BY until_date_of DESC LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT change_date FROM former_name WHERE former_name = :formerName AND parent_id = :personageID ORDER BY change_date DESC LIMIT 1", nativeQuery = true)
     Date findDateOfLastFormerNameRegistered(@Param("formerName") String formerName, @Param("personageID") Integer personageID);
 
 }
