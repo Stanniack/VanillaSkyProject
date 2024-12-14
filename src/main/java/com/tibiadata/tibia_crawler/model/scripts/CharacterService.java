@@ -264,7 +264,7 @@ public class CharacterService {
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
                     oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
-                    personage = pp.findByName(name); // Recupera o personagem existente com o antigo nome
+                    personage = pp.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
                     personage.setName(name); // Seta novo nome
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
