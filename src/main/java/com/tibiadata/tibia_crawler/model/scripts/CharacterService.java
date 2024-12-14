@@ -29,6 +29,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jsoup.helper.ValidationException;
 import org.springframework.context.annotation.Scope;
 
 /**
@@ -75,7 +76,7 @@ public class CharacterService {
     private LevelProgress levelProgress = null;
     private Achievements achievements = null;
     private World world = null;
-    
+
     private GetContent getContent;
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
@@ -95,7 +96,7 @@ public class CharacterService {
                 flowScript(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
                 handlerPersister();
             }
-        } catch (IOException ex) {
+        } catch (IOException | ValidationException ex) {
             Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -185,15 +186,14 @@ public class CharacterService {
         String name = null;
 
         for (String item : itens) {
-            
+
             // Criar método auxiliar para reordenar a lista de strings
             // TODO NAME AND FORMER NAMES
             // TODO FLOW ATTRIBUTES
             // TODO FLOW OBJECTS
-
             if (item.contains(NAME)) {
                 name = splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
-                recoveredPersonage = this.recoverPersonage(name); // recupera personagem se existir
+                recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 if (recoveredPersonage == null) {
                     needsPersistence = true;
@@ -264,7 +264,7 @@ public class CharacterService {
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
                     oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
-                    personage = recoverPersonage(currentFormerName); // Puxa o personagem existente com o antigo nome
+                    personage = pp.findByName(name); // Recupera o personagem existente com o antigo nome
                     personage.setName(name); // Seta novo nome
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
@@ -319,15 +319,6 @@ public class CharacterService {
         } else {
             attributeValidator(getter, setter, newValue); //needsPersistence permanece true
         }
-    }
-
-    /**
-     *
-     * @param name Personame nickname
-     * @return Personage object and its attrs - fetch lazy
-     */
-    private Personage recoverPersonage(String name) {
-        return pp.findByName(name);
     }
 
     /**
