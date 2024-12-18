@@ -50,7 +50,6 @@ public class CharacterService2 {
     private static final String ACHIEVEMENTS = "Achievement Points:";
     private static final String WORLD = "World:";
 
-    private static final int ATTR = 0;
     private static final int ITEM = 1;
 
     private boolean existsName = false;
@@ -97,7 +96,7 @@ public class CharacterService2 {
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 perssonageAttributesHandler(itens);
-                objectsHandler(itens);
+                personageObjectsHandler(itens);
                 persistHandler();
             }
         } catch (IOException | ValidationException ex) {
@@ -108,7 +107,7 @@ public class CharacterService2 {
     public void fetchCharacter(List<String> itens) {
         personageHandler(itens);
         perssonageAttributesHandler(itens);
-        objectsHandler(itens);
+        personageObjectsHandler(itens);
         persistHandler();
     }
 
@@ -218,10 +217,17 @@ public class CharacterService2 {
                 String vocation = replaceAndSplit(item);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
             }
+            
+            //TODO
+            //Residence
+            //Last Login
+            //Account Status
+            //Loyalty Title
+            //Created
         }
     }
 
-    private void objectsHandler(List<String> itens) {
+    private void personageObjectsHandler(List<String> itens) {
         for (String item : itens) {
 
             if (item.contains(SEX)) {
