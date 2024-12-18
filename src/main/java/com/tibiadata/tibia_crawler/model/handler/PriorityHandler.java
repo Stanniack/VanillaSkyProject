@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.handler;
+package com.tibiadata.tibia_crawler.model.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
