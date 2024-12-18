@@ -14,12 +14,17 @@ import org.jsoup.nodes.Element;
 public class GetContent {
 
     /**
-     * @param url link to get HTTP connection
-     * @param select1 HTML tag1 ex: table, tbody, tr, td and its selectors
-     * @param select2 HTML tag2 ex: table, tbody, tr, td and its selectors
-     * @return a list of string containing all
-     * &lt;tag1&gt;&lt;tag2&gt;&lt;/tag2&gt;&lt;/tag1&gt; elements.
-     * @throws IOException
+     * Fetches and extracts table content from a given URL using CSS selectors.
+     *
+     * @param url the URL to fetch the HTML content from.
+     * @param select1 the first CSS selector to filter parent elements.
+     * @param select2 the second CSS selector to filter child elements within
+     * the parent.
+     * @return a list of strings, where each string represents the text content
+     * of a child element filtered by the second selector for all matching
+     * parent elements.
+     * @throws IOException if an error occurs while connecting to the URL or
+     * fetching the HTML content.
      */
     public List<String> getTableContent(String url, String select1, String select2) throws IOException {
         Document document = Jsoup.connect(url).get(); // Pega o html
@@ -31,14 +36,28 @@ public class GetContent {
 
         List<String> allContent = new ArrayList<>();
 
-        for (Element tr : parserDocument.select(select1)) {
-            for (Element td : tr.select(select2)) {
-                allContent.add(td.text()); // Adiciona o texto de cada linha à lista
+        for (Element filter1 : parserDocument.select(select1)) {
+            for (Element filter2 : filter1.select(select2)) {
+                allContent.add(filter2.text()); // Adiciona o texto de cada linha à lista
             }
         }
         return allContent;
     }
 
+    /**
+     * Fetches and parses online players' data from a given URL based on CSS
+     * selectors.
+     *
+     * @param url the URL to fetch the HTML content from.
+     * @param select1 the first CSS selector to filter parent elements.
+     * @param select2 the second CSS selector to filter child elements within
+     * the parent.
+     * @return a list of lists, where each inner list contains the text content
+     * of child elements filtered by the second selector for each parent
+     * element.
+     * @throws IOException if an error occurs while connecting to the URL or
+     * fetching the HTML content.
+     */
     public List<List<String>> getOnlinePlayers(String url, String select1, String select2) throws IOException {
         Document document = Jsoup.connect(url).get(); // Pega o html
 
@@ -49,10 +68,10 @@ public class GetContent {
 
         List<List<String>> allContent = new ArrayList<>();
 
-        for (Element tr : parserDocument.select(select1)) {
+        for (Element filter1 : parserDocument.select(select1)) {
             List<String> eachPlayer = new ArrayList<>();
-            for (Element td : tr.select(select2)) {
-                eachPlayer.add(td.text()); // Adiciona a lista contendo a linha a uma segunda linha
+            for (Element filter2 : filter1.select(select2)) {
+                eachPlayer.add(filter2.text()); // Adiciona a lista contendo a linha a uma segunda linha
             }
             allContent.add(eachPlayer);
         }
