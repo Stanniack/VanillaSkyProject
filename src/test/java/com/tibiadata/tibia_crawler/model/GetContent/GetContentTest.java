@@ -73,12 +73,12 @@ public class GetContentTest {
 
     @Test
     void testContainsPersonageItens() {
-        List<String> reorderedItens = priorityOrder.reorderList(personageItens); // se o método reorderList for alterado, inviabiliza o test
+        List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
         // Se a lista está vazia, não precisa fazer a verficações de prefixo
         assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
-        
-        // Prefixos esperados armazenados em um Set para otimização
+
+        // Prefixos esperados armazenados em um Set - se o método reorderList for alterado, inviabiliza o test
         Set<String> expectedItems = Set.of(
                 "Name:", "Title:", "Vocation:", "Residence:",
                 "Last Login:", "Account Status:", "Sex:",
