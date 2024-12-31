@@ -34,7 +34,7 @@ public class GetContentTest {
     private void loadPersonageItens() {
         try {
             String url = "https://www.tibia.com/community/?subtopic=characters&name=";
-            String charName = "Vytsznyak";
+            String charName = "Vepeeh";
 
             personageItens = getContent.getTableContent(
                     url + charName,
@@ -85,7 +85,7 @@ public class GetContentTest {
                 "Level:", "Achievement Points:", "World:"
         );
 
-        // Verificando se a lista contém os prefixos esperados
+        // Verificando se a lista contém os prefixos esperados, caso não houver, o personagem não existe ou há problemas ao minerar os dados
         for (String prefix : expectedItems) {
             assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
                     "The list doesn't contain an item with '" + prefix + "'");
@@ -94,12 +94,35 @@ public class GetContentTest {
 
     @Test
     void testContainsHiddenPersonageItens() {
+        List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
+        // Se a lista está vazia, não precisa fazer a verficações de prefixo
+        assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
+
+        Set<String> expectedItems = Set.of("Loyalty Title:", "Created:");
+
+        // Verificando se a lista contém os prefixos esperados, caso não houver, o personagem está marcado como 'hidden' pelo proprietário
+        for (String prefix : expectedItems) {
+            assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
+                    "The list doesn't contain an item with '" + prefix + "'");
+        }
     }
 
     @Test
     void testContainsArbitraryPersonageItens() {
+        List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
+        // Se a lista está vazia, não precisa fazer a verficações de prefixo
+        assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
+
+        Set<String> expectedItems = Set.of("Former Names:", "Guild Membership:", "House:");
+
+        /*Verificando se a lista contém os prefixos esperados, caso não houver, 
+        o personagem não possui algumas informações arbitrárias, podendo ser checadas unitariamente */
+        for (String prefix : expectedItems) {
+            assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
+                    "The list doesn't contain an item with '" + prefix + "'");
+        }
     }
 
 }
