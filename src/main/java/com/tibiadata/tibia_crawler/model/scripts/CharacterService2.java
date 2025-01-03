@@ -49,6 +49,11 @@ public class CharacterService2 {
     private static final String LEVEL = "Level:";
     private static final String ACHIEVEMENTS = "Achievement Points:";
     private static final String WORLD = "World:";
+    private static final String RESIDENCE = "Residence:";
+    private static final String LASTLOGIN = "Last Login:";
+    private static final String ACCSTATUS = "Account Status:";
+    private static final String LOYALTYTITLE = "Loyalty Title:";
+    private static final String CREATED = "Created:";
 
     private static final int ITEM = 1;
 
@@ -216,14 +221,27 @@ public class CharacterService2 {
             } else if (item.contains(VOCATION)) {
                 String vocation = replaceAndSplit(item);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
+
+            } else if (item.contains(RESIDENCE)) {
+                String residence = replaceAndSplit(item);
+                persistenceValidator(personage::getResidence, Personage::setResidence, residence);
+
+            } else if (item.contains(LASTLOGIN)) {
+                String lastLogin = replaceAndSplit(item);
+                persistenceValidator(personage::getLastLogin, Personage::setLastLogin, lastLogin);
+
+            } else if (item.contains(ACCSTATUS)) {
+                String accStatus = replaceAndSplit(item);
+                persistenceValidator(personage::getAccStatus, Personage::setAccStatus, accStatus);
+
+            } else if (item.contains(LOYALTYTITLE)) {
+                String loyaltyTitle = replaceAndSplit(item);
+                persistenceValidator(personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
+
+            } else if (item.contains(CREATED)) {
+                String created = replaceAndSplit(item);
+                persistenceValidator(personage::getCreated, Personage::setCreated, created);
             }
-            
-            //TODO
-            //Residence
-            //Last Login
-            //Account Status
-            //Loyalty Title
-            //Created
         }
     }
 
@@ -233,7 +251,7 @@ public class CharacterService2 {
             if (item.contains(SEX)) {
                 String genre = replaceAndSplit(item);
 
-                objectValidator(
+                genericValidator(
                         genre,
                         param -> sp.findLastSex(param),
                         (value, date) -> new Sex(value, date),
@@ -242,7 +260,7 @@ public class CharacterService2 {
             } else if (item.contains(LEVEL)) {
                 String level = replaceAndSplit(item);
 
-                objectValidator(
+                genericValidator(
                         level,
                         param -> lpp.findLastLevelProgress(param),
                         (value, date) -> new LevelProgress(value, date),
@@ -250,7 +268,7 @@ public class CharacterService2 {
 
             } else if (item.contains(ACHIEVEMENTS)) {
                 String points = replaceAndSplit(item);
-                objectValidator(
+                genericValidator(
                         points,
                         param -> ap.findLastPoints(param),
                         (value, date) -> new Achievements(value, date),
@@ -258,12 +276,16 @@ public class CharacterService2 {
 
             } else if (item.contains(WORLD)) {
                 String server = replaceAndSplit(item);
-                objectValidator(
+                genericValidator(
                         server,
                         param -> wp.findLastWorld(param),
                         (value, date) -> new World(value, date),
                         newWorld -> this.world = newWorld);
             }
+
+            //TODO
+            //Guild Membership
+            //House
         }
     }
 
@@ -285,8 +307,12 @@ public class CharacterService2 {
             }
         }
     }
+    
+    private void guildValidator(){
+        
+    }
 
-    private <T> void objectValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
+    private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
         // Se oldName existir, então verifica o último valor do antigo name
         String dbValue = (oldName != null) ? dbPersister.apply(oldName) : dbPersister.apply(personage.getName());
 
@@ -337,6 +363,10 @@ public class CharacterService2 {
 
     private String replaceAndSplit(String item) {
         return StringUtils.replaceFirstSpace(StringUtils.splitAndReplace(item, ":")[ITEM]);
+    }
+
+    private String replaceAndSplit(String item, String regex) {
+        return StringUtils.replaceFirstSpace(StringUtils.splitAndReplace(item, regex)[ITEM]);
     }
 
 }
