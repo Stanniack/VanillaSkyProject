@@ -27,17 +27,30 @@ public class Personage {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
-    private List<FormerName> formerNames = new ArrayList<>();
-
     @Column(nullable = false)
     private String title;
 
-    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
-    private List<FormerName> sexes = new ArrayList<>();
-
     @Column(nullable = false)
     private String vocation;
+
+    @Column(nullable = false)
+    private String residence;
+
+    @Column(nullable = false)
+    private String lastLogin;
+
+    @Column(nullable = false)
+    private String accStatus;
+
+    private String loyaltyTitle;
+
+    private String created;
+
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<FormerName> formerNames = new ArrayList<>();
+
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<FormerName> sexes = new ArrayList<>();
 
     @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
     private List<LevelProgress> levelProgresses = new ArrayList<>();
@@ -131,6 +144,46 @@ public class Personage {
 
     public void setAchievements(List<Achievements> achievements) {
         this.achievements = achievements;
+    }
+
+    public String getResidence() {
+        return residence;
+    }
+
+    public void setResidence(String residence) {
+        this.residence = residence;
+    }
+
+    public String getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(String lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public String getAccStatus() {
+        return accStatus;
+    }
+
+    public void setAccStatus(String accStatus) {
+        this.accStatus = accStatus;
+    }
+
+    public String getLoyaltyTitle() {
+        return loyaltyTitle;
+    }
+
+    public void setLoyaltyTitle(String loyaltyTitle) {
+        this.loyaltyTitle = loyaltyTitle;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
     }
 
 }
