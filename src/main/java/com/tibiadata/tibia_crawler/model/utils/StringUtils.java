@@ -7,13 +7,15 @@ package com.tibiadata.tibia_crawler.model.utils;
 public class StringUtils {
 
     /**
+     * Splits the input string using the provided regex and returns an array
+     * with at most two parts.
      *
-     * @param item var type string to be processed by split and replace
-     * @param regex regex to use for process string
-     * @return an array of processed strings
+     * @param item the string to be split and processed
+     * @param regex the regular expression used to split the string
+     * @return an array containing up to two parts of the processed string
      */
     public static String[] splitAndReplace(String item, String regex) {
-        return item.split(regex);
+        return item.split(regex, 2);
     }
 
     /**
