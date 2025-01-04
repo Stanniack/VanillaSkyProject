@@ -3,12 +3,14 @@ package com.tibiadata.tibia_crawler.model.scripts;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
+import com.tibiadata.tibia_crawler.model.entities.Guild;
 import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.entities.World;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
+import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
@@ -54,6 +56,7 @@ public class CharacterService2 {
     private static final String ACCSTATUS = "Account Status:";
     private static final String LOYALTYTITLE = "Loyalty Title:";
     private static final String CREATED = "Created:";
+    private static final String GUILD = "Guild Membership:";
 
     private static final int ITEM = 1;
 
@@ -73,6 +76,8 @@ public class CharacterService2 {
     private AchievementsPersistence ap;
     @Autowired
     private WorldPersistence wp;
+    @Autowired
+    private GuildPersistence gp;
 
     private Calendar calendar;
 
@@ -82,10 +87,13 @@ public class CharacterService2 {
     private LevelProgress levelProgress = null;
     private Achievements achievements = null;
     private World world = null;
+    private Guild guild = null;
 
     private GetContent getContent;
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
+    private StringUtils strUtils;
+    
 
     public CharacterService2() {
         this.calendar = Calendar.getInstance();
@@ -93,6 +101,7 @@ public class CharacterService2 {
         this.getContent = new GetContent();
         this.elementUtils = new ElementsUtils();
         this.calendarUtils = new CalendarUtils();
+        this.strUtils = new StringUtils();
     }
 
     public void fetchCharacter(String url) {
@@ -194,7 +203,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = StringUtils.splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
+                name = strUtils.splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -281,6 +290,13 @@ public class CharacterService2 {
                         param -> wp.findLastWorld(param),
                         (value, date) -> new World(value, date),
                         newWorld -> this.world = newWorld);
+
+            } else if (item.contains(GUILD)) {
+                String guild = replaceAndSplit(item);
+                String rank = replaceAndSplit(guild, "of the", 2, 0);
+                String guildName = replaceAndSplit(guild, "of the", 2, 1);
+                System.out.println(rank);
+                System.out.println(guildName);
             }
 
             //TODO
@@ -290,12 +306,12 @@ public class CharacterService2 {
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = StringUtils.splitAndReplace(formerName, "[:,]");
+        String[] splittedFormerNames = strUtils.splitAndReplace(formerName, "[:,]");
 
         // Se não existe é novo ou trocou de nick
         if (!existsName) {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
+                String currentFormerName = strUtils.replaceFirstSpace(splittedFormerNames[i]);
 
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
@@ -307,9 +323,10 @@ public class CharacterService2 {
             }
         }
     }
-    
-    private void guildValidator(){
-        
+
+    private void guildValidator(String rank, String guildName) {
+        // Se último guildName existe no bd e é igual ao guildName atual: Se o rank não é igual ao persistido, alterar rank e persistir
+        // Senão: guildName não existe, persistir
     }
 
     private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
@@ -362,11 +379,11 @@ public class CharacterService2 {
     }
 
     private String replaceAndSplit(String item) {
-        return StringUtils.replaceFirstSpace(StringUtils.splitAndReplace(item, ":")[ITEM]);
+        return strUtils.replaceFirstSpace(strUtils.splitAndReplace(item, ":")[ITEM]);
     }
 
-    private String replaceAndSplit(String item, String regex) {
-        return StringUtils.replaceFirstSpace(StringUtils.splitAndReplace(item, regex)[ITEM]);
+    private String replaceAndSplit(String item, String regex, int arraySize, int indexItem) {
+        return strUtils.replaceFirstSpace(strUtils.splitAndReplace(item, regex, arraySize)[indexItem]);
     }
 
 }
