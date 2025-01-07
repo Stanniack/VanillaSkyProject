@@ -114,6 +114,7 @@ public class CharacterService2 {
             /*for (String item : itens) {
                 System.out.println(item);
             }*/
+            
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
@@ -134,7 +135,7 @@ public class CharacterService2 {
 
     private void persistHandler() {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
-        persistFormerName2(personage);
+        persistFormerName(personage);
         persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
         persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
         persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
@@ -157,7 +158,7 @@ public class CharacterService2 {
 
     }
 
-    private void persistFormerName2(Personage p) {
+    private void persistFormerName(Personage p) {
 
         for (FormerName formerName : formerNames) {
             Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
@@ -196,7 +197,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = strUtils.split(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
+                name = splitAndReplace(item); // trata o nome do personagem
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
