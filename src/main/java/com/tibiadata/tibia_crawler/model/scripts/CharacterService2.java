@@ -93,7 +93,6 @@ public class CharacterService2 {
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
     private StringUtils strUtils;
-    
 
     public CharacterService2() {
         this.calendar = Calendar.getInstance();
@@ -105,11 +104,17 @@ public class CharacterService2 {
     }
 
     public void fetchCharacter(String url) {
+
         try {
             List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
+
+            for (String item : itens) {
+                System.out.println(item);
+            }
+            
             if (!itens.isEmpty()) {
                 personageHandler(itens);
-                perssonageAttributesHandler(itens);
+                personageAttributesHandler(itens);
                 personageObjectsHandler(itens);
                 persistHandler();
             }
@@ -120,7 +125,7 @@ public class CharacterService2 {
 
     public void fetchCharacter(List<String> itens) {
         personageHandler(itens);
-        perssonageAttributesHandler(itens);
+        personageAttributesHandler(itens);
         personageObjectsHandler(itens);
         persistHandler();
     }
@@ -132,6 +137,7 @@ public class CharacterService2 {
         persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
         persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
         persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
+        persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
     }
 
     private void persistPersonage(Personage p) {
@@ -203,7 +209,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = strUtils.splitAndReplace(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
+                name = strUtils.split(item, ":")[ITEM].replace(" ", ""); // trata o nome do personagem
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -220,35 +226,35 @@ public class CharacterService2 {
         }
     }
 
-    private void perssonageAttributesHandler(List<String> itens) {
+    private void personageAttributesHandler(List<String> itens) {
         for (String item : itens) {
 
             if (item.matches(TITLE)) {
-                String title = replaceAndSplit(item);
+                String title = splitAndReplace(item);
                 persistenceValidator(personage::getTitle, Personage::setTitle, title);
 
             } else if (item.contains(VOCATION)) {
-                String vocation = replaceAndSplit(item);
+                String vocation = splitAndReplace(item);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
 
             } else if (item.contains(RESIDENCE)) {
-                String residence = replaceAndSplit(item);
+                String residence = splitAndReplace(item);
                 persistenceValidator(personage::getResidence, Personage::setResidence, residence);
 
             } else if (item.contains(LASTLOGIN)) {
-                String lastLogin = replaceAndSplit(item);
+                String lastLogin = splitAndReplace(item);
                 persistenceValidator(personage::getLastLogin, Personage::setLastLogin, lastLogin);
 
             } else if (item.contains(ACCSTATUS)) {
-                String accStatus = replaceAndSplit(item);
+                String accStatus = splitAndReplace(item);
                 persistenceValidator(personage::getAccStatus, Personage::setAccStatus, accStatus);
 
             } else if (item.contains(LOYALTYTITLE)) {
-                String loyaltyTitle = replaceAndSplit(item);
+                String loyaltyTitle = splitAndReplace(item);
                 persistenceValidator(personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
 
             } else if (item.contains(CREATED)) {
-                String created = replaceAndSplit(item);
+                String created = splitAndReplace(item);
                 persistenceValidator(personage::getCreated, Personage::setCreated, created);
             }
         }
@@ -258,7 +264,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(SEX)) {
-                String genre = replaceAndSplit(item);
+                String genre = splitAndReplace(item);
 
                 genericValidator(
                         genre,
@@ -267,7 +273,7 @@ public class CharacterService2 {
                         newSex -> this.sex = newSex);
 
             } else if (item.contains(LEVEL)) {
-                String level = replaceAndSplit(item);
+                String level = splitAndReplace(item);
 
                 genericValidator(
                         level,
@@ -276,7 +282,7 @@ public class CharacterService2 {
                         newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {
-                String points = replaceAndSplit(item);
+                String points = splitAndReplace(item);
                 genericValidator(
                         points,
                         param -> ap.findLastPoints(param),
@@ -284,7 +290,7 @@ public class CharacterService2 {
                         newAchievements -> this.achievements = newAchievements);
 
             } else if (item.contains(WORLD)) {
-                String server = replaceAndSplit(item);
+                String server = splitAndReplace(item);
                 genericValidator(
                         server,
                         param -> wp.findLastWorld(param),
@@ -292,21 +298,19 @@ public class CharacterService2 {
                         newWorld -> this.world = newWorld);
 
             } else if (item.contains(GUILD)) {
-                String guild = replaceAndSplit(item);
-                String rank = replaceAndSplit(guild, "of the", 2, 0);
-                String guildName = replaceAndSplit(guild, "of the", 2, 1);
-                System.out.println(rank);
-                System.out.println(guildName);
+                String currentGuild = splitAndReplace(item);
+                String currentRank = splitAndReplace(currentGuild, "of the", 2, 0);
+                String currentGuildName = splitAndReplace(currentGuild, "of the", 2, 1);
+                guildValidator(currentRank, currentGuildName);
             }
 
             //TODO
-            //Guild Membership
             //House
         }
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = strUtils.splitAndReplace(formerName, "[:,]");
+        String[] splittedFormerNames = strUtils.multSplit(formerName, "[:,]");
 
         // Se não existe é novo ou trocou de nick
         if (!existsName) {
@@ -325,8 +329,19 @@ public class CharacterService2 {
     }
 
     private void guildValidator(String rank, String guildName) {
-        // Se último guildName existe no bd e é igual ao guildName atual: Se o rank não é igual ao persistido, alterar rank e persistir
-        // Senão: guildName não existe, persistir
+        Guild dbGuild = (oldName != null) ? gp.findLastGuild(oldName) : gp.findLastGuild(personage.getName());
+
+        // Se último guildName existe no bd e é igual ao guildName atual
+        if (dbGuild != null && dbGuild.getGuildName().equals(guildName)) {
+            // Se o rank não é igual ao do bd, alterar rank e persistir
+            if (!dbGuild.getRank().equals(rank)) {
+                dbGuild.setRank(rank);
+                this.guild = dbGuild; // atribui guild com valores alterados para persistir
+            }
+
+        } else { // Senão: guildName não existe, instanciar guild
+            this.guild = new Guild(rank, guildName, Calendar.getInstance());
+        }
     }
 
     private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
@@ -335,8 +350,8 @@ public class CharacterService2 {
 
         // Se valor buscado no db é null ou não é igual o valor atual, setar valor atual para persistência
         if (dbValue == null || !dbValue.equals(newValue)) {
-            T newObject = object.apply(newValue, Calendar.getInstance());
-            setter.accept(newObject);
+            T newObject = object.apply(newValue, Calendar.getInstance()); // instancia novo objeto
+            setter.accept(newObject); // altera valores
         }
     }
 
@@ -378,12 +393,12 @@ public class CharacterService2 {
         }
     }
 
-    private String replaceAndSplit(String item) {
-        return strUtils.replaceFirstSpace(strUtils.splitAndReplace(item, ":")[ITEM]);
+    private String splitAndReplace(String item) {
+        return strUtils.replaceFirstSpace(strUtils.split(item, ":")[ITEM]);
     }
 
-    private String replaceAndSplit(String item, String regex, int arraySize, int indexItem) {
-        return strUtils.replaceFirstSpace(strUtils.splitAndReplace(item, regex, arraySize)[indexItem]);
+    private String splitAndReplace(String item, String regex, int arraySize, int indexItem) {
+        return strUtils.replaceFirstSpace(strUtils.split(item, regex, arraySize)[indexItem]);
     }
 
 }
