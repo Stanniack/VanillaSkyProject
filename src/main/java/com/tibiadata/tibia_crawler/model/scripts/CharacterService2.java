@@ -8,6 +8,7 @@ import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.entities.World;
+import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
@@ -93,6 +94,7 @@ public class CharacterService2 {
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
     private StringUtils strUtils;
+    private PriorityHandler pHandler;
 
     public CharacterService2() {
         this.calendar = Calendar.getInstance();
@@ -101,17 +103,17 @@ public class CharacterService2 {
         this.elementUtils = new ElementsUtils();
         this.calendarUtils = new CalendarUtils();
         this.strUtils = new StringUtils();
+        this.pHandler = new PriorityHandler();
     }
 
     public void fetchCharacter(String url) {
 
         try {
-            List<String> itens = getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr());
+            List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
 
-            for (String item : itens) {
+            /*for (String item : itens) {
                 System.out.println(item);
-            }
-            
+            }*/
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
@@ -151,21 +153,6 @@ public class CharacterService2 {
 
         } else {
             System.out.println("Personage " + personage.getName() + " não precisa de persistência");
-        }
-
-    }
-
-    private void persistFormerName(Personage p) {
-
-        for (FormerName formerName : formerNames) {
-            // Se o formername existe e está associado ao id do personage, não persistir pois já existe no bd !!!!!!!!!!!!!!
-            if (!fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId())) {
-                formerName.setPersonage(personage);
-                fnp.save(formerName);
-
-            } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
-                System.out.println(" FN já existe no bd\n");
-            }
         }
 
     }
