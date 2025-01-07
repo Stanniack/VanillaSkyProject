@@ -22,5 +22,9 @@ public class GuildPersistence {
     public boolean personageGuildsExists(String guildName, Integer personageId){
         return gr.personageGuildsExists(guildName, personageId);
     }
+    
+    public Guild findLastGuild(String pName) {
+        return gr.findLastGuild(pName);
+    }
 
 }

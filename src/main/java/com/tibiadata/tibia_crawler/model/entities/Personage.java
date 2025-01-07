@@ -58,6 +58,9 @@ public class Personage {
     @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
     private List<Achievements> achievements = new ArrayList<>();
 
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<Guild> guilds = new ArrayList<>();
+
     /**/
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -184,6 +187,14 @@ public class Personage {
 
     public void setCreated(String created) {
         this.created = created;
+    }
+
+    public List<Guild> getGuilds() {
+        return guilds;
+    }
+
+    public void setGuilds(List<Guild> guilds) {
+        this.guilds = guilds;
     }
 
 }
