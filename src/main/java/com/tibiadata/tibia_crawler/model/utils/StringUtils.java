@@ -17,8 +17,15 @@ public class StringUtils {
     public String[] split(String item, String regex) {
         return item.split(regex, 2);
     }
-    
-    public String[] multSplit(String item, String regex){
+
+    /**
+     * Splits the given string by the specified regex pattern.
+     *
+     * @param item the string to split
+     * @param regex the regex pattern to use for splitting
+     * @return an array of substrings
+     */
+    public String[] multSplit(String item, String regex) {
         return item.split(regex);
     }
 
@@ -36,11 +43,39 @@ public class StringUtils {
     }
 
     /**
+     * Removes the first occurrence of leading whitespace from the given string.
      *
-     * @param str string to replace first index
-     * @return string treated without first index containing space
+     * @param str the string to process
+     * @return the string without leading whitespace
      */
     public String replaceFirstSpace(String str) {
         return str.replaceFirst("^\\s+", "");
     }
+
+    /**
+     * Splits the given string by ":" and removes leading whitespace from the
+     * specified index.
+     *
+     * @param item the string to split
+     * @param index the index of the substring to process
+     * @return the processed substring with leading whitespace removed
+     */
+    public String splitAndReplace(String item, int index) {
+        return replaceFirstSpace(split(item, ":")[index]);
+    }
+
+    /**
+     * Splits the given string by the specified regex, limits the array size,
+     * and removes leading whitespace from the specified index.
+     *
+     * @param item the string to split
+     * @param regex the regex pattern to use for splitting
+     * @param arraySize the maximum size of the resulting array
+     * @param indexItem the index of the substring to process
+     * @return the processed substring with leading whitespace removed
+     */
+    public String splitAndReplace(String item, String regex, int arraySize, int indexItem) {
+        return replaceFirstSpace(split(item, regex, arraySize)[indexItem]);
+    }
+
 }
