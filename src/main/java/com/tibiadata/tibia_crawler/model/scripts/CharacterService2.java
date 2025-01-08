@@ -4,6 +4,7 @@ import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.Guild;
+import com.tibiadata.tibia_crawler.model.entities.House;
 import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
@@ -12,6 +13,7 @@ import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
+import com.tibiadata.tibia_crawler.model.persistence.HousePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
@@ -58,6 +60,7 @@ public class CharacterService2 {
     private static final String LOYALTYTITLE = "Loyalty Title:";
     private static final String CREATED = "Created:";
     private static final String GUILD = "Guild Membership:";
+    private static final String HOUSE = "House:";
 
     private static final int ITEM = 1;
 
@@ -79,16 +82,20 @@ public class CharacterService2 {
     private WorldPersistence wp;
     @Autowired
     private GuildPersistence gp;
+    @Autowired
+    private HousePersistence hp;
 
     private Calendar calendar;
 
     private Personage personage;
-    private List<FormerName> formerNames = new ArrayList<>();
+    private List<FormerName> formerNames;
     private Sex sex = null;
     private LevelProgress levelProgress = null;
     private Achievements achievements = null;
     private World world = null;
     private Guild guild = null;
+    private List<House> houses;
+    private List<House> cacheHouses;
 
     private GetContent getContent;
     private ElementsUtils elementUtils;
@@ -97,6 +104,9 @@ public class CharacterService2 {
     private PriorityHandler pHandler;
 
     public CharacterService2() {
+        this.formerNames = new ArrayList<>();
+        this.houses = new ArrayList();
+
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
         this.getContent = new GetContent();
@@ -114,7 +124,6 @@ public class CharacterService2 {
             /*for (String item : itens) {
                 System.out.println(item);
             }*/
-            
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
@@ -141,6 +150,7 @@ public class CharacterService2 {
         persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
         persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
         persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
+        persistHouses(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -180,6 +190,13 @@ public class CharacterService2 {
             }
         }
 
+    }
+
+    private void persistHouses(Personage p) {
+        houses.stream().forEach((House house) -> {
+            house.setPersonage(p);
+            hp.save(house);
+        });
     }
 
     private <T> void persistObject(T object, Consumer<T> setPersonage, Consumer<T> dbPersister) {
@@ -290,10 +307,15 @@ public class CharacterService2 {
                 String currentRank = splitAndReplace(currentGuild, "of the", 2, 0);
                 String currentGuildName = splitAndReplace(currentGuild, "of the", 2, 1);
                 guildValidator(currentRank, currentGuildName);
+
+            } else if (item.contains(HOUSE)) {
+                String houseName = splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
+                String paidUntil = splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
+                houseValidator(houseName, paidUntil);
             }
 
             //TODO
-            //House
+            //Deaths
         }
     }
 
@@ -330,6 +352,40 @@ public class CharacterService2 {
         } else { // Senão: guildName não existe, instanciar guild
             this.guild = new Guild(rank, guildName, Calendar.getInstance());
         }
+    }
+
+    private void houseValidator(String curHouseName, String curPaidUntil) {
+
+        // Armezena a verificação do banco de dados para evitar chamadas repetidas inúteis, uma vez que o valor no db não se altera dinamicamente enquanto a classe estiver sendo instanciada
+        if (cacheHouses == null) {
+            cacheHouses = (oldName != null) ? hp.findLastThreeHouses(oldName) : hp.findLastThreeHouses(personage.getName());
+        }
+
+        // Se dbHouse for nulo, persiste as houses que encontrar
+        if (cacheHouses == null) {
+            houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
+
+        } else {
+            boolean found = false;
+            House curHouse = null;
+
+            for (House house : cacheHouses) {
+                if (house.getHouseName().equals(curHouseName)) { // Se encontrar a house na lista do bd, flag para persistência
+                    found = true;
+                    curHouse = house;
+                    break;
+                }
+            }
+
+            if (found && !curHouse.getPaidUntil().equals(curPaidUntil)) {// Se achou na lista do bd e paidUntil é diferente, alterar e persistir
+                curHouse.setPaidUntil(curPaidUntil);
+                houses.add(curHouse);
+
+            } else if (!found) { //Senão achou a house é nova
+                houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
+            }
+        }
+
     }
 
     private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
