@@ -24,29 +24,30 @@ public class PriorityHandler {
     public List<String> reorderList(List<String> originalList) {
         // Mapa com a ordem de prioridade (números como chave)
         Map<Integer, String> priorityMap = new HashMap<>();
-        priorityMap.put(1, "Name:");
-        priorityMap.put(2, "Former Names:");
-        priorityMap.put(3, "Title:");
-        priorityMap.put(4, "Vocation:");
-        priorityMap.put(5, "Residence:");
-        priorityMap.put(6, "Last Login:");
-        priorityMap.put(7, "Account Status:");
-        priorityMap.put(8, "Loyalty Title:");
-        priorityMap.put(9, "Created:");
-        priorityMap.put(10, "Sex:");
-        priorityMap.put(11, "Level:");
-        priorityMap.put(12, "Achievement Points:");
-        priorityMap.put(13, "World:");
-        priorityMap.put(14, "Guild Membership:");
-        priorityMap.put(15, "House:");
+        priorityMap.put(1, "^Name:.*");
+        priorityMap.put(2, "^Former Names:.*");
+        priorityMap.put(3, "^Title:.*");
+        priorityMap.put(4, "^Vocation:.*");
+        priorityMap.put(5, "^Residence:.*");
+        priorityMap.put(6, "^Last Login:.*");
+        priorityMap.put(7, "^Account Status:.*");
+        priorityMap.put(8, "^Loyalty Title:.*");
+        priorityMap.put(9, "^Created:.*");
+        priorityMap.put(10, "^Sex:.*");
+        priorityMap.put(11, "^Level:.*");
+        priorityMap.put(12, "^Achievement Points:.*");
+        priorityMap.put(13, "^World:.*");
+        priorityMap.put(14, "^Guild Membership:.*");
+        priorityMap.put(15, "^House:.*");
+        priorityMap.put(16, "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*");
 
         // Mapa para armazenar listas de strings, para lidar com múltiplas ocorrências
         Map<String, List<String>> groupedItems = new HashMap<>();
 
-        // Agrupar as ocorrências de "House:" e outras similares
+        // Agrupar ocorrências com suporte a regex
         for (String item : originalList) {
             for (String key : priorityMap.values()) {
-                if (item.startsWith(key)) {
+                if (item.matches(key)) {
                     groupedItems.computeIfAbsent(key, k -> new ArrayList<>()).add(item);
                     break;
                 }
