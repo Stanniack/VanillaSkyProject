@@ -214,7 +214,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = splitAndReplace(item); // trata o nome do personagem
+                name = strUtils.splitAndReplace(item, ITEM); // trata o nome do personagem
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -235,31 +235,31 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.matches(TITLE)) {
-                String title = splitAndReplace(item);
+                String title = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getTitle, Personage::setTitle, title);
 
             } else if (item.contains(VOCATION)) {
-                String vocation = splitAndReplace(item);
+                String vocation = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
 
             } else if (item.contains(RESIDENCE)) {
-                String residence = splitAndReplace(item);
+                String residence = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getResidence, Personage::setResidence, residence);
 
             } else if (item.contains(LASTLOGIN)) {
-                String lastLogin = splitAndReplace(item);
+                String lastLogin = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getLastLogin, Personage::setLastLogin, lastLogin);
 
             } else if (item.contains(ACCSTATUS)) {
-                String accStatus = splitAndReplace(item);
+                String accStatus = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getAccStatus, Personage::setAccStatus, accStatus);
 
             } else if (item.contains(LOYALTYTITLE)) {
-                String loyaltyTitle = splitAndReplace(item);
+                String loyaltyTitle = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
 
             } else if (item.contains(CREATED)) {
-                String created = splitAndReplace(item);
+                String created = strUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getCreated, Personage::setCreated, created);
             }
         }
@@ -269,7 +269,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(SEX)) {
-                String genre = splitAndReplace(item);
+                String genre = strUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         genre,
@@ -278,7 +278,7 @@ public class CharacterService2 {
                         newSex -> this.sex = newSex);
 
             } else if (item.contains(LEVEL)) {
-                String level = splitAndReplace(item);
+                String level = strUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         level,
@@ -287,7 +287,7 @@ public class CharacterService2 {
                         newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {
-                String points = splitAndReplace(item);
+                String points = strUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         points,
                         param -> ap.findLastPoints(param),
@@ -295,7 +295,7 @@ public class CharacterService2 {
                         newAchievements -> this.achievements = newAchievements);
 
             } else if (item.contains(WORLD)) {
-                String server = splitAndReplace(item);
+                String server = strUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         server,
                         param -> wp.findLastWorld(param),
@@ -303,14 +303,14 @@ public class CharacterService2 {
                         newWorld -> this.world = newWorld);
 
             } else if (item.contains(GUILD)) {
-                String currentGuild = splitAndReplace(item);
-                String currentRank = splitAndReplace(currentGuild, "of the", 2, 0);
-                String currentGuildName = splitAndReplace(currentGuild, "of the", 2, 1);
+                String currentGuild = strUtils.splitAndReplace(item, ITEM);
+                String currentRank = strUtils.splitAndReplace(currentGuild, "of the", 2, 0);
+                String currentGuildName = strUtils.splitAndReplace(currentGuild, "of the", 2, 1);
                 guildValidator(currentRank, currentGuildName);
 
             } else if (item.contains(HOUSE)) {
-                String houseName = splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
-                String paidUntil = splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
+                String houseName = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
+                String paidUntil = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
                 houseValidator(houseName, paidUntil);
             }
 
@@ -361,8 +361,7 @@ public class CharacterService2 {
             cacheHouses = (oldName != null) ? hp.findLastThreeHouses(oldName) : hp.findLastThreeHouses(personage.getName());
         }
 
-        // Se dbHouse for nulo, persiste as houses que encontrar
-        if (cacheHouses == null) {
+        if (cacheHouses == null) {// Se dbHouse for nulo, persiste as houses que encontrar
             houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
 
         } else {
@@ -435,14 +434,6 @@ public class CharacterService2 {
         } else {
             attributeValidator(getter, setter, newValue); //needsPersistence permanece true
         }
-    }
-
-    private String splitAndReplace(String item) {
-        return strUtils.replaceFirstSpace(strUtils.split(item, ":")[ITEM]);
-    }
-
-    private String splitAndReplace(String item, String regex, int arraySize, int indexItem) {
-        return strUtils.replaceFirstSpace(strUtils.split(item, regex, arraySize)[indexItem]);
     }
 
 }
