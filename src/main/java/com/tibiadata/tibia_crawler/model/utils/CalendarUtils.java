@@ -2,8 +2,12 @@ package com.tibiadata.tibia_crawler.model.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,14 +17,12 @@ import java.util.logging.Logger;
  */
 public class CalendarUtils {
 
-    Calendar calendar;
-
     /**
      *
      * @return local date yyyy-MM-dd HH:mm:ss
      */
     public String getDate() {
-        calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(calendar.getTime());
     }
@@ -61,11 +63,27 @@ public class CalendarUtils {
             Date parsedDate = sdf.parse(date);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(parsedDate);
+
             return calendar;
+
         } catch (ParseException ex) {
             Logger.getLogger(CalendarUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return Calendar.getInstance();
+    }
+
+    public Calendar parseToCalendar(String textDate) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH);// Define o padrão do formato "Mmm d yyyy"
+
+        LocalDate localDate = LocalDate.parse(textDate, formatter);// Converte a string para LocalDate
+
+        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());// Converte LocalDate para Date
+
+        Calendar calendar = Calendar.getInstance();// Cria uma instância de Calendar e define a data
+        calendar.setTime(date);
+
+        return calendar;
     }
 
 }
