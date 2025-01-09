@@ -61,6 +61,10 @@ public class CharacterService2 {
     private static final String CREATED = "Created:";
     private static final String GUILD = "Guild Membership:";
     private static final String HOUSE = "House:";
+    private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
+    
+    //
+    private static final String TRADED = "(traded)";
 
     private static final int ITEM = 1;
 
@@ -121,9 +125,6 @@ public class CharacterService2 {
         try {
             List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
 
-            /*for (String item : itens) {
-                System.out.println(item);
-            }*/
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
@@ -214,7 +215,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = strUtils.splitAndReplace(item, ITEM); // trata o nome do personagem
+                name = strUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -312,10 +313,11 @@ public class CharacterService2 {
                 String houseName = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
                 String paidUntil = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
                 houseValidator(houseName, paidUntil);
+
+            } else if (item.matches(DEATH)) {
+                System.out.println(item);
             }
 
-            //TODO
-            //Deaths
         }
     }
 
@@ -384,6 +386,10 @@ public class CharacterService2 {
                 houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
             }
         }
+
+    }
+
+    private void deathValidator() {
 
     }
 
