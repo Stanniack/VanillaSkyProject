@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.scripts;
+package com.tibiadata.tibia_crawler.model.connections;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Devmachine
  */
-public class CharacterServiceTest {
+public class GetContentTest {
 
     private GetContent getContent;
     private ElementsUtils selectors;
