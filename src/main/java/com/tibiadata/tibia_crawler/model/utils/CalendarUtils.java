@@ -2,12 +2,14 @@ package com.tibiadata.tibia_crawler.model.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,18 +74,48 @@ public class CalendarUtils {
         return Calendar.getInstance();
     }
 
+    /**
+     * Converts a string representing a date and time in the format "MMM d yyyy,
+     * HH:mm:ss" to a Calendar object, using the "Europe/Paris" time zone.
+     *
+     * @param textDate the date string in the format "MMM d yyyy, HH:mm:ss" to
+     * be parsed
+     * @return a Calendar instance representing the parsed date and time in the
+     * "Europe/Paris" time zone
+     */
     public Calendar parseToCalendar(String textDate) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH);// Define o padrão do formato "Mmm d yyyy"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH:mm:ss", Locale.ENGLISH);// Define o padrão do formato "Mmm d yyyy"
 
-        LocalDate localDate = LocalDate.parse(textDate, formatter);// Converte a string para LocalDate
+        ZonedDateTime zonedDateTime = LocalDateTime.parse(textDate, formatter)
+                .atZone(ZoneId.of("Europe/Paris"));
 
-        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());// Converte LocalDate para Date
+        Date date = Date.from(zonedDateTime.toInstant());// Converte ZonedDateTime para Date
 
         Calendar calendar = Calendar.getInstance();// Cria uma instância de Calendar e define a data
         calendar.setTime(date);
 
         return calendar;
+    }
+
+    /**
+     * Compares two Calendar objects to check if they represent the same date
+     * and time. The comparison includes year, month, day, hour, minute, and
+     * second.
+     *
+     * @param c1 the first Calendar instance
+     * @param c2 the second Calendar instance
+     * @return true if both Calendar instances represent the same date and time,
+     * false otherwise
+     */
+    public boolean isSameDateTime(Calendar c1, Calendar c2) {
+        return c1 != null && c2 != null
+                && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+                && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
+                && c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)
+                && c1.get(Calendar.HOUR_OF_DAY) == c2.get(Calendar.HOUR_OF_DAY)
+                && c1.get(Calendar.MINUTE) == c2.get(Calendar.MINUTE)
+                && c1.get(Calendar.SECOND) == c2.get(Calendar.SECOND);
     }
 
 }
