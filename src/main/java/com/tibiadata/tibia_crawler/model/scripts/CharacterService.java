@@ -121,7 +121,7 @@ public class CharacterService {
     private StringUtils strUtils;
     private PriorityHandler pHandler;
 
-    public CharacterService2() {
+    public CharacterService() {
         this.formerNames = new ArrayList<>();
         this.houses = new ArrayList();
         this.deaths = new ArrayList<>();
