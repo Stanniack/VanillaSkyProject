@@ -64,6 +64,9 @@ public class Personage {
     @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
     private List<House> houses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "personage", fetch = FetchType.LAZY)
+    private List<Death> deaths = new ArrayList<>();
+
     /**/
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -206,6 +209,14 @@ public class Personage {
 
     public void setHouses(List<House> houses) {
         this.houses = houses;
+    }
+
+    public List<Death> getDeaths() {
+        return deaths;
+    }
+
+    public void setDeaths(List<Death> deaths) {
+        this.deaths = deaths;
     }
 
 }
