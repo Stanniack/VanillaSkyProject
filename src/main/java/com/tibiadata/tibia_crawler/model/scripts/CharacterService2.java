@@ -2,6 +2,7 @@ package com.tibiadata.tibia_crawler.model.scripts;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
+import com.tibiadata.tibia_crawler.model.entities.Death;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.Guild;
 import com.tibiadata.tibia_crawler.model.entities.House;
@@ -9,8 +10,10 @@ import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.entities.World;
+import com.tibiadata.tibia_crawler.model.exceptions.StringLengthException;
 import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
+import com.tibiadata.tibia_crawler.model.persistence.DeathPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.HousePersistence;
@@ -46,6 +49,10 @@ import org.springframework.context.annotation.Scope;
 @Service
 public class CharacterService2 {
 
+    //
+    private int STRLENTOLERANCE = 500;
+
+    //
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
@@ -62,16 +69,19 @@ public class CharacterService2 {
     private static final String GUILD = "Guild Membership:";
     private static final String HOUSE = "House:";
     private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
-    
+
     //
     private static final String TRADED = "(traded)";
 
+    //
     private static final int ITEM = 1;
 
+    //
     private boolean existsName = false;
     private boolean needsPersistence = false;
     private String oldName;
 
+    //
     @Autowired
     private PersonagePersistence pp;
     @Autowired
@@ -88,9 +98,10 @@ public class CharacterService2 {
     private GuildPersistence gp;
     @Autowired
     private HousePersistence hp;
+    @Autowired
+    private DeathPersistence dp;
 
-    private Calendar calendar;
-
+    //
     private Personage personage;
     private List<FormerName> formerNames;
     private Sex sex = null;
@@ -100,7 +111,10 @@ public class CharacterService2 {
     private Guild guild = null;
     private List<House> houses;
     private List<House> cacheHouses;
+    private List<Death> deaths;
 
+    //
+    private Calendar calendar;
     private GetContent getContent;
     private ElementsUtils elementUtils;
     private CalendarUtils calendarUtils;
@@ -110,6 +124,7 @@ public class CharacterService2 {
     public CharacterService2() {
         this.formerNames = new ArrayList<>();
         this.houses = new ArrayList();
+        this.deaths = new ArrayList<>();
 
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
@@ -152,6 +167,7 @@ public class CharacterService2 {
         persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
         persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
         persistHouses(personage);
+        persistDeaths(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -194,9 +210,16 @@ public class CharacterService2 {
     }
 
     private void persistHouses(Personage p) {
-        houses.stream().forEach((House house) -> {
+        houses.stream().forEach(house -> {
             house.setPersonage(p);
             hp.save(house);
+        });
+    }
+
+    private void persistDeaths(Personage p) {
+        deaths.stream().forEach(death -> {
+            death.setPersonage(p);
+            dp.save(death);
         });
     }
 
@@ -315,9 +338,13 @@ public class CharacterService2 {
                 houseValidator(houseName, paidUntil);
 
             } else if (item.matches(DEATH)) {
-                System.out.println(item);
+                try {
+                    String[] occurrence = strUtils.split(item, "\\s?(CET|CEST)\\s?");
+                    deathValidator(occurrence[0], occurrence[1]);
+                } catch (StringLengthException ex) {
+                    Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-
         }
     }
 
@@ -389,8 +416,20 @@ public class CharacterService2 {
 
     }
 
-    private void deathValidator() {
+    private void deathValidator(String deathDate, String occurrence) throws StringLengthException {
 
+        if (occurrence.length() <= STRLENTOLERANCE) {
+            Calendar convertedDeathDate = calendarUtils.parseToCalendar(deathDate);
+            Date dbDate = (oldName != null) ? dp.findDeathByDate(convertedDeathDate, oldName) : dp.findDeathByDate(convertedDeathDate, personage.getName());
+
+            //Se a data da morte (horário incluso) buscada for nula (não existe!) a morte é nova, persistir
+            if (dbDate == null) {
+                deaths.add(new Death(occurrence, convertedDeathDate));
+            }
+
+        } else {
+            throw new StringLengthException("The string death occurrence is too long.");
+        }
     }
 
     private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
