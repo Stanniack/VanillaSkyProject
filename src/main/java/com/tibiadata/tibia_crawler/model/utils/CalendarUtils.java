@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,7 +22,7 @@ public class CalendarUtils {
      *
      * @return local date yyyy-MM-dd HH:mm:ss
      */
-    public String getDate() {
+    public static String getDate() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(calendar.getTime());
@@ -35,7 +34,7 @@ public class CalendarUtils {
      * @param date Date to be converted to Calendar
      * @return Calendar
      */
-    public Calendar convertToCalendar(Date date) {
+    public static Calendar convertToCalendar(Date date) {
         Calendar converted = Calendar.getInstance();
         converted.setTime(date);
         return converted;
@@ -47,7 +46,7 @@ public class CalendarUtils {
      * @return true if the comparison between date1 and date2 is greater/equal
      * than 180 days
      */
-    public boolean greaterThan180Days(Calendar date1, Calendar date2) {
+    public static boolean greaterThan180Days(Calendar date1, Calendar date2) {
         long diffInMillis = Math.abs(date1.getTimeInMillis() - date2.getTimeInMillis()); // Calcular a diferença em milissegundos
         long diffInDays = diffInMillis / (24 * 60 * 60 * 1000); // Converter milissegundos para dias (1 dia = 86400000 milissegundos)
         System.out.println(diffInDays);
@@ -58,7 +57,7 @@ public class CalendarUtils {
      * @param date a string format MM/dd/YYYY to be converted in calendar
      * @return A formated calendar
      */
-    public Calendar parseDate(String date) {
+    public static Calendar parseDate(String date) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
             sdf.setLenient(false); // desativa datas improváveis
@@ -83,7 +82,7 @@ public class CalendarUtils {
      * @return a Calendar instance representing the parsed date and time in the
      * "Europe/Paris" time zone
      */
-    public Calendar parseToCalendar(String textDate) {
+    public static Calendar parseToCalendar(String textDate) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH:mm:ss", Locale.ENGLISH);// Define o padrão do formato "Mmm d yyyy"
 
@@ -108,7 +107,7 @@ public class CalendarUtils {
      * @return true if both Calendar instances represent the same date and time,
      * false otherwise
      */
-    public boolean isSameDateTime(Calendar c1, Calendar c2) {
+    public static boolean isSameDateTime(Calendar c1, Calendar c2) {
         return c1 != null && c2 != null
                 && c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
                 && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
