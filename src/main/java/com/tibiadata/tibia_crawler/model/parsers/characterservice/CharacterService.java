@@ -1,5 +1,7 @@
-package com.tibiadata.tibia_crawler.model.scripts;
+package com.tibiadata.tibia_crawler.model.parsers.characterservice;
 
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.CharacterService2;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.TitleStrategy;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.Death;
@@ -31,6 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -47,7 +51,7 @@ import org.springframework.context.annotation.Scope;
  */
 @Scope("prototype")
 @Service
-public class CharacterService2 {
+public class CharacterService {
 
     //
     private int STRLENTOLERANCE = 500;
@@ -55,6 +59,9 @@ public class CharacterService2 {
     //
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
+    //
+    private Map<String, AttributeStrategy> strategyMap;
+    //
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
     private static final String SEX = "Sex:";
     private static final String VOCATION = "Vocation:";
@@ -69,18 +76,14 @@ public class CharacterService2 {
     private static final String GUILD = "Guild Membership:";
     private static final String HOUSE = "House:";
     private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
-
     //
     private static final String TRADED = "(traded)";
-
     //
     private static final int ITEM = 1;
-
     //
     private boolean existsName = false;
     private boolean needsPersistence = false;
     private String oldName;
-
     //
     @Autowired
     private PersonagePersistence pp;
@@ -100,7 +103,6 @@ public class CharacterService2 {
     private HousePersistence hp;
     @Autowired
     private DeathPersistence dp;
-
     //
     private Personage personage;
     private List<FormerName> formerNames;
@@ -112,7 +114,6 @@ public class CharacterService2 {
     private List<House> houses;
     private List<House> cacheHouses;
     private List<Death> deaths;
-
     //
     private Calendar calendar;
     private GetContent getContent;
@@ -121,7 +122,10 @@ public class CharacterService2 {
     private StringUtils strUtils;
     private PriorityHandler pHandler;
 
-    public CharacterService2() {
+    public CharacterService() {
+        this.strategyMap = new HashMap();
+        this.strategyMap.put(TITLE, new TitleStrategy());
+
         this.formerNames = new ArrayList<>();
         this.houses = new ArrayList();
         this.deaths = new ArrayList<>();
@@ -256,37 +260,12 @@ public class CharacterService2 {
     }
 
     private void personageAttributesHandler(List<String> itens) {
-        for (String item : itens) {
-
-            if (item.matches(TITLE)) {
-                String title = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getTitle, Personage::setTitle, title);
-
-            } else if (item.contains(VOCATION)) {
-                String vocation = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
-
-            } else if (item.contains(RESIDENCE)) {
-                String residence = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getResidence, Personage::setResidence, residence);
-
-            } else if (item.contains(LASTLOGIN)) {
-                String lastLogin = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getLastLogin, Personage::setLastLogin, lastLogin);
-
-            } else if (item.contains(ACCSTATUS)) {
-                String accStatus = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getAccStatus, Personage::setAccStatus, accStatus);
-
-            } else if (item.contains(LOYALTYTITLE)) {
-                String loyaltyTitle = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
-
-            } else if (item.contains(CREATED)) {
-                String created = strUtils.splitAndReplace(item, ITEM);
-                persistenceValidator(personage::getCreated, Personage::setCreated, created);
+        itens.forEach(item -> {
+            for (var entry : strategyMap.entrySet()) {
+                needsPersistence = entry.getValue().apply(personage, item, entry.getKey(), needsPersistence);
+                break;
             }
-        }
+        });
     }
 
     private void personageObjectsHandler(List<String> itens) {
@@ -442,43 +421,4 @@ public class CharacterService2 {
             setter.accept(newObject); // altera valores
         }
     }
-
-    /**
-     * Validates and updates a string attribute if it is null or different from
-     * a new value.
-     *
-     * @param getter a Supplier that retrieves the current value of the
-     * attribute.
-     * @param setter a BiConsumer that sets the new value for the attribute.
-     * @param newValue the new value to be validated and potentially set.
-     * @return {@code true} if the attribute was updated; {@code false}
-     * otherwise.
-     */
-    private boolean attributeValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
-        String currentValue = getter.get(); // Obtém o valor atual do atributo usando o getter
-
-        // Verifica se o valor atual é nulo ou diferente do novo valor
-        if (currentValue == null || !currentValue.equals(newValue)) {
-            setter.accept(personage, newValue); // Atualiza o atributo usando o setter
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Validates and updates an attribute, handling the needsPersistence logic.
-     *
-     * @param needsPersistence the current state of the persistence flag.
-     * @param getter a Supplier to retrieve the current attribute value.
-     * @param setter a BiConsumer to set the new attribute value.
-     * @param newValue the new value to validate and potentially set.
-     */
-    private void persistenceValidator(Supplier<String> getter, BiConsumer<Personage, String> setter, String newValue) {
-        if (!needsPersistence) {
-            needsPersistence = attributeValidator(getter, setter, newValue); //verifica se é true ou false
-        } else {
-            attributeValidator(getter, setter, newValue); //needsPersistence permanece true
-        }
-    }
-
 }

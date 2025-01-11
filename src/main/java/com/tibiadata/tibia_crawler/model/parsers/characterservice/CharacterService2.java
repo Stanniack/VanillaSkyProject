@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.scripts;
+package com.tibiadata.tibia_crawler.model.parsers.characterservice;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
@@ -47,7 +47,7 @@ import org.springframework.context.annotation.Scope;
  */
 @Scope("prototype")
 @Service
-public class CharacterService {
+public class CharacterService2 {
 
     //
     private int STRLENTOLERANCE = 500;
@@ -121,7 +121,7 @@ public class CharacterService {
     private StringUtils strUtils;
     private PriorityHandler pHandler;
 
-    public CharacterService() {
+    public CharacterService2() {
         this.formerNames = new ArrayList<>();
         this.houses = new ArrayList();
         this.deaths = new ArrayList<>();
