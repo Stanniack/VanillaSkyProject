@@ -46,3 +46,8 @@ src/main/java/com/tibiadata/tibia_crawler/model/connections/Main6.java
 .metadata/.plugins/org.eclipse.ui.workbench/dialog_settings.xml
 .metadata/.plugins/org.eclipse.ui.workbench/workingsets.xml
 .metadata/version.ini
+.idea/vcs.xml
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
