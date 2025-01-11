@@ -117,8 +117,6 @@ public class CharacterService2 {
     private Calendar calendar;
     private GetContent getContent;
     private ElementsUtils elementUtils;
-    private CalendarUtils calendarUtils;
-    private StringUtils strUtils;
     private PriorityHandler pHandler;
 
     public CharacterService2() {
@@ -130,8 +128,6 @@ public class CharacterService2 {
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
         this.getContent = new GetContent();
         this.elementUtils = new ElementsUtils();
-        this.calendarUtils = new CalendarUtils();
-        this.strUtils = new StringUtils();
         this.pHandler = new PriorityHandler();
     }
 
@@ -192,7 +188,7 @@ public class CharacterService2 {
 
             // chama o bd só se date != null
             boolean greatherThan180days
-                    = (date != null) ? calendarUtils.greaterThan180Days(calendar, calendarUtils.convertToCalendar(date)) : false;
+                    = (date != null) ? CalendarUtils.greaterThan180Days(calendar, CalendarUtils.convertToCalendar(date)) : false;
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
@@ -238,7 +234,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = strUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
+                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -259,31 +255,31 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.matches(TITLE)) {
-                String title = strUtils.splitAndReplace(item, ITEM);
+                String title = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getTitle, Personage::setTitle, title);
 
             } else if (item.contains(VOCATION)) {
-                String vocation = strUtils.splitAndReplace(item, ITEM);
+                String vocation = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getVocation, Personage::setVocation, vocation);
 
             } else if (item.contains(RESIDENCE)) {
-                String residence = strUtils.splitAndReplace(item, ITEM);
+                String residence = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getResidence, Personage::setResidence, residence);
 
             } else if (item.contains(LASTLOGIN)) {
-                String lastLogin = strUtils.splitAndReplace(item, ITEM);
+                String lastLogin = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getLastLogin, Personage::setLastLogin, lastLogin);
 
             } else if (item.contains(ACCSTATUS)) {
-                String accStatus = strUtils.splitAndReplace(item, ITEM);
+                String accStatus = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getAccStatus, Personage::setAccStatus, accStatus);
 
             } else if (item.contains(LOYALTYTITLE)) {
-                String loyaltyTitle = strUtils.splitAndReplace(item, ITEM);
+                String loyaltyTitle = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
 
             } else if (item.contains(CREATED)) {
-                String created = strUtils.splitAndReplace(item, ITEM);
+                String created = StringUtils.splitAndReplace(item, ITEM);
                 persistenceValidator(personage::getCreated, Personage::setCreated, created);
             }
         }
@@ -293,7 +289,7 @@ public class CharacterService2 {
         for (String item : itens) {
 
             if (item.contains(SEX)) {
-                String genre = strUtils.splitAndReplace(item, ITEM);
+                String genre = StringUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         genre,
@@ -302,7 +298,7 @@ public class CharacterService2 {
                         newSex -> this.sex = newSex);
 
             } else if (item.contains(LEVEL)) {
-                String level = strUtils.splitAndReplace(item, ITEM);
+                String level = StringUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         level,
@@ -311,7 +307,7 @@ public class CharacterService2 {
                         newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {
-                String points = strUtils.splitAndReplace(item, ITEM);
+                String points = StringUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         points,
                         param -> ap.findLastPoints(param),
@@ -319,7 +315,7 @@ public class CharacterService2 {
                         newAchievements -> this.achievements = newAchievements);
 
             } else if (item.contains(WORLD)) {
-                String server = strUtils.splitAndReplace(item, ITEM);
+                String server = StringUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         server,
                         param -> wp.findLastWorld(param),
@@ -327,19 +323,19 @@ public class CharacterService2 {
                         newWorld -> this.world = newWorld);
 
             } else if (item.contains(GUILD)) {
-                String currentGuild = strUtils.splitAndReplace(item, ITEM);
-                String currentRank = strUtils.splitAndReplace(currentGuild, "of the", 2, 0);
-                String currentGuildName = strUtils.splitAndReplace(currentGuild, "of the", 2, 1);
+                String currentGuild = StringUtils.splitAndReplace(item, ITEM);
+                String currentRank = StringUtils.splitAndReplace(currentGuild, "of the", 2, 0);
+                String currentGuildName = StringUtils.splitAndReplace(currentGuild, "of the", 2, 1);
                 guildValidator(currentRank, currentGuildName);
 
             } else if (item.contains(HOUSE)) {
-                String houseName = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
-                String paidUntil = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
+                String houseName = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
+                String paidUntil = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
                 houseValidator(houseName, paidUntil);
 
             } else if (item.matches(DEATH)) {
                 try {
-                    String[] occurrence = strUtils.split(item, "\\s?(CET|CEST)\\s?");
+                    String[] occurrence = StringUtils.split(item, "\\s?(CET|CEST)\\s?");
                     deathValidator(occurrence[0], occurrence[1]);
                 } catch (StringLengthException ex) {
                     Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
@@ -349,12 +345,12 @@ public class CharacterService2 {
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = strUtils.multSplit(formerName, "[:,]");
+        String[] splittedFormerNames = StringUtils.multSplit(formerName, "[:,]");
 
         // Se não existe é novo ou trocou de nick
         if (!existsName) {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                String currentFormerName = strUtils.replaceFirstSpace(splittedFormerNames[i]);
+                String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
 
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
@@ -419,7 +415,7 @@ public class CharacterService2 {
     private void deathValidator(String deathDate, String occurrence) throws StringLengthException {
 
         if (occurrence.length() <= STRLENTOLERANCE) {
-            Calendar convertedDeathDate = calendarUtils.parseToCalendar(deathDate);
+            Calendar convertedDeathDate = CalendarUtils.parseToCalendar(deathDate);
             Date dbDate = (oldName != null) ? dp.findDeathByDate(convertedDeathDate, oldName) : dp.findDeathByDate(convertedDeathDate, personage.getName());
 
             //Se a data da morte (horário incluso) buscada for nula (não existe!) a morte é nova, persistir
