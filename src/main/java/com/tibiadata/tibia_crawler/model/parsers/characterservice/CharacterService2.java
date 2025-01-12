@@ -22,11 +22,14 @@ import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.WorldPersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
+
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,11 +41,11 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.jsoup.helper.ValidationException;
 import org.springframework.context.annotation.Scope;
 
 /**
- *
  * @author Devmachine
  */
 @Scope("prototype")
@@ -115,13 +118,13 @@ public class CharacterService2 {
 
     //
     private Calendar calendar;
-    private GetContent getContent;
-    private ElementsUtils elementUtils;
-    private PriorityHandler pHandler;
+    private final GetContent getContent;
+    private final ElementsUtils elementUtils;
+    private final PriorityHandler pHandler;
 
     public CharacterService2() {
         this.formerNames = new ArrayList<>();
-        this.houses = new ArrayList();
+        this.houses = new ArrayList<>();
         this.deaths = new ArrayList<>();
 
         this.calendar = Calendar.getInstance();
@@ -187,8 +190,7 @@ public class CharacterService2 {
             Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
 
             // chama o bd só se date != null
-            boolean greatherThan180days
-                    = (date != null) ? CalendarUtils.greaterThan180Days(calendar, CalendarUtils.convertToCalendar(date)) : false;
+            boolean greatherThan180days = date != null && CalendarUtils.greaterThan180Days(calendar, CalendarUtils.convertToCalendar(date));
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
@@ -206,14 +208,14 @@ public class CharacterService2 {
     }
 
     private void persistHouses(Personage p) {
-        houses.stream().forEach(house -> {
+        houses.forEach(house -> {
             house.setPersonage(p);
             hp.save(house);
         });
     }
 
     private void persistDeaths(Personage p) {
-        deaths.stream().forEach(death -> {
+        deaths.forEach(death -> {
             death.setPersonage(p);
             dp.save(death);
         });
@@ -291,36 +293,20 @@ public class CharacterService2 {
             if (item.contains(SEX)) {
                 String genre = StringUtils.splitAndReplace(item, ITEM);
 
-                genericValidator(
-                        genre,
-                        param -> sp.findLastSex(param),
-                        (value, date) -> new Sex(value, date),
-                        newSex -> this.sex = newSex);
+                genericValidator(genre, param -> sp.findLastSex(param), (value, date) -> new Sex(value, date), newSex -> this.sex = newSex);
 
             } else if (item.contains(LEVEL)) {
                 String level = StringUtils.splitAndReplace(item, ITEM);
 
-                genericValidator(
-                        level,
-                        param -> lpp.findLastLevelProgress(param),
-                        (value, date) -> new LevelProgress(value, date),
-                        newLevelProgress -> this.levelProgress = newLevelProgress);
+                genericValidator(level, param -> lpp.findLastLevelProgress(param), (value, date) -> new LevelProgress(value, date), newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {
                 String points = StringUtils.splitAndReplace(item, ITEM);
-                genericValidator(
-                        points,
-                        param -> ap.findLastPoints(param),
-                        (value, date) -> new Achievements(value, date),
-                        newAchievements -> this.achievements = newAchievements);
+                genericValidator(points, param -> ap.findLastPoints(param), (value, date) -> new Achievements(value, date), newAchievements -> this.achievements = newAchievements);
 
             } else if (item.contains(WORLD)) {
                 String server = StringUtils.splitAndReplace(item, ITEM);
-                genericValidator(
-                        server,
-                        param -> wp.findLastWorld(param),
-                        (value, date) -> new World(value, date),
-                        newWorld -> this.world = newWorld);
+                genericValidator(server, param -> wp.findLastWorld(param), (value, date) -> new World(value, date), newWorld -> this.world = newWorld);
 
             } else if (item.contains(GUILD)) {
                 String currentGuild = StringUtils.splitAndReplace(item, ITEM);
@@ -366,10 +352,9 @@ public class CharacterService2 {
     private void guildValidator(String rank, String guildName) {
         Guild dbGuild = (oldName != null) ? gp.findLastGuild(oldName) : gp.findLastGuild(personage.getName());
 
-        // Se último guildName existe no bd e é igual ao guildName atual
-        if (dbGuild != null && dbGuild.getGuildName().equals(guildName)) {
-            // Se o rank não é igual ao do bd, alterar rank e persistir
-            if (!dbGuild.getRank().equals(rank)) {
+        if (dbGuild != null && dbGuild.getGuildName().equals(guildName)) {// Se último guildName existe no bd e é igual ao guildName atual
+
+            if (!dbGuild.getRank().equals(rank)) {// Se o rank não é igual ao do bd, alterar rank e persistir
                 dbGuild.setRank(rank);
                 this.guild = dbGuild; // atribui guild com valores alterados para persistir
             }
@@ -464,7 +449,6 @@ public class CharacterService2 {
     /**
      * Validates and updates an attribute, handling the needsPersistence logic.
      *
-     * @param needsPersistence the current state of the persistence flag.
      * @param getter a Supplier to retrieve the current attribute value.
      * @param setter a BiConsumer to set the new attribute value.
      * @param newValue the new value to validate and potentially set.
