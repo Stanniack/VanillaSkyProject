@@ -6,12 +6,12 @@ import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Devmachine
  */
-@Service
+@Component
 public class SexStrategy implements ObjectStrategy {
 
     //
