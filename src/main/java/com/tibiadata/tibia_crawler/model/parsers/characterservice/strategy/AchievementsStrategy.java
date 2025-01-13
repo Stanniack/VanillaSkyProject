@@ -24,7 +24,6 @@ public class AchievementsStrategy implements ObjectStrategy {
     private Achievements achievements;
 
     @Override
-    @Transactional
     public <T> void apply(Personage personage, String newValue) {
         ObjectHandler.genericValidator(
                 personage,

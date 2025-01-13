@@ -23,7 +23,6 @@ public class SexStrategy implements ObjectStrategy {
     private Sex sex;
 
     @Override
-    @Transactional
     public <T> void apply(Personage personage, String newValue) {
         ObjectHandler.genericValidator(
                 personage,

@@ -4,7 +4,6 @@ import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.persistence.LevelProgressPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,6 @@ public class LevelProgressStrategy implements ObjectStrategy {
     private LevelProgress levelProgress;
 
     @Override
-    @Transactional
     public <T> void apply(Personage personage, String newValue) {
         ObjectHandler.genericValidator(
                 personage,

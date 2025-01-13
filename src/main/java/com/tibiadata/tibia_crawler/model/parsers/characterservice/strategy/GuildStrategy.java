@@ -6,7 +6,6 @@ import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import jakarta.transaction.Transactional;
 import java.util.Calendar;
-import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ public class GuildStrategy implements ObjectStrategy {
     private Guild guild;
 
     @Override
-    @Transactional
     public <T> void apply(Personage personage, String newValue) {
         String currentGuild = StringUtils.splitAndReplace(newValue, ITEM);
         String currentRank = StringUtils.splitAndReplace(currentGuild, "of the", 2, 0);
@@ -35,7 +33,6 @@ public class GuildStrategy implements ObjectStrategy {
         ObjectHandler.persistObject(guild, currGuild -> currGuild.setPersonage(personage), currGuild -> gp.save(currGuild));
     }
 
-    @Transactional
     private void guildValidator(Personage personage, String rank, String guildName) {
         //Guild dbGuild = (oldName != null) ? gp.findLastGuildById(oldName) : gp.findLastGuild(personage.getName());
         Guild dbGuild = gp.findLastGuildById(personage.getId().toString());
