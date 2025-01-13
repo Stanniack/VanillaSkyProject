@@ -22,5 +22,9 @@ public class LevelProgressPersistence {
     public String findLastLevelProgress(String personageName) {
         return lpr.findLastLevelProgress(personageName);
     }
+    
+    public String findLastLevelProgressById(Integer personageId) {
+        return lpr.findLastLevelProgressById(personageId);
+    }
 
 }

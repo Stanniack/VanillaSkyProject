@@ -17,4 +17,8 @@ public interface LevelProgressRepository extends JpaRepository<LevelProgress, Lo
             nativeQuery = true)
     String findLastLevelProgress(@Param("name") String name);
 
+    @Query(value = "SELECT level FROM level_progress lp WHERE parent_id = :personageId ORDER BY lp.day_progress DESC LIMIT 1",
+            nativeQuery = true)
+    String findLastLevelProgressById(@Param("personageId") Integer personageId);
+
 }
