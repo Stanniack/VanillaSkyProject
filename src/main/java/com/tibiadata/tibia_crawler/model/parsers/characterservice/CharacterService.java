@@ -116,13 +116,14 @@ public class CharacterService {
     }
 
     @Autowired
-    public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, AchievementsStrategy aStrategy, WorldStrategy wStrategy, GuildStrategy gStrategy) {
+    public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, AchievementsStrategy aStrategy,
+            WorldStrategy wStrategy, GuildStrategy gStrategy, HouseStrategy hStrategy) {
         this.objectsStrategyMap.put(SEX, sStrategy);
         this.objectsStrategyMap.put(LEVEL, lpStrategy);
         this.objectsStrategyMap.put(ACHIEVEMENTS, aStrategy);
         this.objectsStrategyMap.put(WORLD, wStrategy);
         this.objectsStrategyMap.put(GUILD, gStrategy);
-        //house
+        this.objectsStrategyMap.put(HOUSE, hStrategy);
         //death
     }
 

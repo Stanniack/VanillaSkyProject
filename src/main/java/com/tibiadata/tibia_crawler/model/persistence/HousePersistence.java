@@ -23,4 +23,8 @@ public class HousePersistence {
     public List<House> findLastThreeHouses(String pName) {
         return hp.findLastThreeHouses(pName);
     }
+
+    public List<House> findLastThreeHousesById(Integer personageId) {
+        return hp.findLastThreeHousesById(personageId);
+    }
 }
