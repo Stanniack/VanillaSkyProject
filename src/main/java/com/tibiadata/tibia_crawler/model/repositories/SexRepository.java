@@ -17,4 +17,8 @@ public interface SexRepository extends JpaRepository<Sex, Long> {
             nativeQuery = true)
     String findLastSex(@Param("name") String personageName);
 
+    @Query(value = "SELECT genre FROM Sex s WHERE parent_id = :personageId ORDER BY s.change_date DESC LIMIT 1",
+            nativeQuery = true)
+    String findLastSexById(@Param("personageId") Integer personageId);
+
 }

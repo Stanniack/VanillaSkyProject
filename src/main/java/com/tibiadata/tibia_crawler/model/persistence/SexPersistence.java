@@ -23,6 +23,10 @@ public class SexPersistence {
     public String findLastSex(String personageName) {
         return sr.findLastSex(personageName);
     }
+    
+    public String findLastSexById(Integer personageId){
+        return sr.findLastSexById(personageId);
+    }
 
     public Sex save(Sex sex) {
         return sr.save(sex);
