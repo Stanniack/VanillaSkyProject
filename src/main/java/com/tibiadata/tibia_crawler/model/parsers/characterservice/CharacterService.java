@@ -1,7 +1,7 @@
 package com.tibiadata.tibia_crawler.model.parsers.characterservice;
 
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.CharacterService2;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.TitleStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy.GuildStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy.*;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.Death;
@@ -29,17 +29,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.helper.ValidationException;
@@ -55,24 +54,24 @@ public class CharacterService {
 
     //
     private int STRLENTOLERANCE = 500;
-
     //
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
     //
-    private Map<String, AttributeStrategy> strategyMap;
-    //
+    private Map<String, AttributeStrategy> attributesStrategyMap;
     private static final String TITLE = ".*[0-9]+ titles unlocked.*";
-    private static final String SEX = "Sex:";
     private static final String VOCATION = "Vocation:";
-    private static final String LEVEL = "Level:";
-    private static final String ACHIEVEMENTS = "Achievement Points:";
-    private static final String WORLD = "World:";
     private static final String RESIDENCE = "Residence:";
     private static final String LASTLOGIN = "Last Login:";
     private static final String ACCSTATUS = "Account Status:";
     private static final String LOYALTYTITLE = "Loyalty Title:";
     private static final String CREATED = "Created:";
+    //
+    private Map<String, ObjectStrategy> objectsStrategyMap = new HashMap<>();
+    private static final String SEX = "Sex:";
+    private static final String LEVEL = "Level:";
+    private static final String ACHIEVEMENTS = "Achievement Points:";
+    private static final String WORLD = "World:";
     private static final String GUILD = "Guild Membership:";
     private static final String HOUSE = "House:";
     private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
@@ -118,25 +117,33 @@ public class CharacterService {
     private Calendar calendar;
     private GetContent getContent;
     private ElementsUtils elementUtils;
-    private CalendarUtils calendarUtils;
-    private StringUtils strUtils;
     private PriorityHandler pHandler;
 
-    public CharacterService() {
-        this.strategyMap = new HashMap();
-        this.strategyMap.put(TITLE, new TitleStrategy());
+    public CharacterService(SexStrategy sexStrategy) {
+        this.attributesStrategyMap = new HashMap<>();
+        this.attributesStrategyMap.put(TITLE, new TitleStrategy());
+        this.attributesStrategyMap.put(VOCATION, new VocationStrategy());
+        this.attributesStrategyMap.put(RESIDENCE, new ResidenceStrategy());
+        this.attributesStrategyMap.put(LASTLOGIN, new LastLoginStrategy());
+        this.attributesStrategyMap.put(ACCSTATUS, new AccStatusStrategy());
+        this.attributesStrategyMap.put(LOYALTYTITLE, new LoyaltyTitleStrategy());
+        this.attributesStrategyMap.put(CREATED, new CreatedStrategy());
 
         this.formerNames = new ArrayList<>();
-        this.houses = new ArrayList();
+        this.houses = new ArrayList<>();
         this.deaths = new ArrayList<>();
 
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
         this.getContent = new GetContent();
         this.elementUtils = new ElementsUtils();
-        this.calendarUtils = new CalendarUtils();
-        this.strUtils = new StringUtils();
         this.pHandler = new PriorityHandler();
+    }
+
+    @Autowired
+    public void setObjectsStrategies(SexStrategy sexStrategy, GuildStrategy guildStrategy) {
+        this.objectsStrategyMap.put(SEX, sexStrategy);
+        this.objectsStrategyMap.put(GUILD, guildStrategy);
     }
 
     public void fetchCharacter(String url) {
@@ -147,8 +154,8 @@ public class CharacterService {
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
-                personageObjectsHandler(itens);
                 persistHandler();
+                personageObjectsHandler(itens);
             }
         } catch (IOException | ValidationException ex) {
             Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
@@ -158,20 +165,20 @@ public class CharacterService {
     public void fetchCharacter(List<String> itens) {
         personageHandler(itens);
         personageAttributesHandler(itens);
+        persistHandler(); // Persistir antes de lidar com ObjectsHandler
         personageObjectsHandler(itens);
-        persistHandler();
     }
 
     private void persistHandler() {
-        persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID
+        persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
         persistFormerName(personage);
-        persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
-        persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
-        persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
-        persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
-        persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
-        persistHouses(personage);
-        persistDeaths(personage);
+        //persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
+        //persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
+        //persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
+        //persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
+        //persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
+        //persistHouses(personage);
+        //persistDeaths(personage);
     }
 
     private void persistPersonage(Personage p) {
@@ -196,7 +203,7 @@ public class CharacterService {
 
             // chama o bd só se date != null
             boolean greatherThan180days
-                    = (date != null) ? calendarUtils.greaterThan180Days(calendar, calendarUtils.convertToCalendar(date)) : false;
+                    = date != null && CalendarUtils.greaterThan180Days(calendar, CalendarUtils.convertToCalendar(date));
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
@@ -214,14 +221,14 @@ public class CharacterService {
     }
 
     private void persistHouses(Personage p) {
-        houses.stream().forEach(house -> {
+        houses.forEach(house -> {
             house.setPersonage(p);
             hp.save(house);
         });
     }
 
     private void persistDeaths(Personage p) {
-        deaths.stream().forEach(death -> {
+        deaths.forEach(death -> {
             death.setPersonage(p);
             dp.save(death);
         });
@@ -242,7 +249,7 @@ public class CharacterService {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = strUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
+                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
@@ -260,19 +267,29 @@ public class CharacterService {
     }
 
     private void personageAttributesHandler(List<String> itens) {
-        itens.forEach(item -> {
-            for (var entry : strategyMap.entrySet()) {
-                needsPersistence = entry.getValue().apply(personage, item, entry.getKey(), needsPersistence);
-                break;
+
+        for (String item : itens) { //16
+            for (var entry : attributesStrategyMap.entrySet()) { //x7, = 112 verificações
+                if (item.contains(entry.getKey()) || item.matches(entry.getKey())) {
+                    entry.getValue().apply(personage, item, needsPersistence);
+                }
             }
-        });
+        }
     }
 
     private void personageObjectsHandler(List<String> itens) {
         for (String item : itens) {
+            for (var entry : objectsStrategyMap.entrySet()) {
+                if (item.contains(entry.getKey()) || item.matches(entry.getKey())) {
+                    entry.getValue().apply(personage, oldName, item);
+                }
+            }
+        }
+
+        /*for (String item : itens) {
 
             if (item.contains(SEX)) {
-                String genre = strUtils.splitAndReplace(item, ITEM);
+                String genre = StringUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         genre,
@@ -281,7 +298,7 @@ public class CharacterService {
                         newSex -> this.sex = newSex);
 
             } else if (item.contains(LEVEL)) {
-                String level = strUtils.splitAndReplace(item, ITEM);
+                String level = StringUtils.splitAndReplace(item, ITEM);
 
                 genericValidator(
                         level,
@@ -290,7 +307,7 @@ public class CharacterService {
                         newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {
-                String points = strUtils.splitAndReplace(item, ITEM);
+                String points = StringUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         points,
                         param -> ap.findLastPoints(param),
@@ -298,7 +315,7 @@ public class CharacterService {
                         newAchievements -> this.achievements = newAchievements);
 
             } else if (item.contains(WORLD)) {
-                String server = strUtils.splitAndReplace(item, ITEM);
+                String server = StringUtils.splitAndReplace(item, ITEM);
                 genericValidator(
                         server,
                         param -> wp.findLastWorld(param),
@@ -306,34 +323,34 @@ public class CharacterService {
                         newWorld -> this.world = newWorld);
 
             } else if (item.contains(GUILD)) {
-                String currentGuild = strUtils.splitAndReplace(item, ITEM);
-                String currentRank = strUtils.splitAndReplace(currentGuild, "of the", 2, 0);
-                String currentGuildName = strUtils.splitAndReplace(currentGuild, "of the", 2, 1);
+                String currentGuild = StringUtils.splitAndReplace(item, ITEM);
+                String currentRank = StringUtils.splitAndReplace(currentGuild, "of the", 2, 0);
+                String currentGuildName = StringUtils.splitAndReplace(currentGuild, "of the", 2, 1);
                 guildValidator(currentRank, currentGuildName);
 
             } else if (item.contains(HOUSE)) {
-                String houseName = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
-                String paidUntil = strUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
+                String houseName = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
+                String paidUntil = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
                 houseValidator(houseName, paidUntil);
 
             } else if (item.matches(DEATH)) {
                 try {
-                    String[] occurrence = strUtils.split(item, "\\s?(CET|CEST)\\s?");
+                    String[] occurrence = StringUtils.split(item, "\\s?(CET|CEST)\\s?");
                     deathValidator(occurrence[0], occurrence[1]);
                 } catch (StringLengthException ex) {
                     Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
+        }*/
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = strUtils.multSplit(formerName, "[:,]");
+        String[] splittedFormerNames = StringUtils.multSplit(formerName, "[:,]");
 
         // Se não existe é novo ou trocou de nick
         if (!existsName) {
             for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                String currentFormerName = strUtils.replaceFirstSpace(splittedFormerNames[i]);
+                String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
 
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
@@ -364,7 +381,7 @@ public class CharacterService {
 
     private void houseValidator(String curHouseName, String curPaidUntil) {
 
-        // Armezena a verificação do banco de dados para evitar chamadas repetidas inúteis, uma vez que o valor no db não se altera dinamicamente enquanto a classe estiver sendo instanciada
+        // Armazena a verificação do banco de dados para evitar chamadas repetidas inúteis, uma vez que o valor no db não se altera dinamicamente enquanto a classe estiver sendo instanciada
         if (cacheHouses == null) {
             cacheHouses = (oldName != null) ? hp.findLastThreeHouses(oldName) : hp.findLastThreeHouses(personage.getName());
         }
@@ -398,7 +415,7 @@ public class CharacterService {
     private void deathValidator(String deathDate, String occurrence) throws StringLengthException {
 
         if (occurrence.length() <= STRLENTOLERANCE) {
-            Calendar convertedDeathDate = calendarUtils.parseToCalendar(deathDate);
+            Calendar convertedDeathDate = CalendarUtils.parseToCalendar(deathDate);
             Date dbDate = (oldName != null) ? dp.findDeathByDate(convertedDeathDate, oldName) : dp.findDeathByDate(convertedDeathDate, personage.getName());
 
             //Se a data da morte (horário incluso) buscada for nula (não existe!) a morte é nova, persistir
