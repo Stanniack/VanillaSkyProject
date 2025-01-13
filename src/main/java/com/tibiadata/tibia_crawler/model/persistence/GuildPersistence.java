@@ -18,13 +18,17 @@ public class GuildPersistence {
     public Guild save(Guild guild) {
         return gr.save(guild);
     }
-    
-    public boolean personageGuildsExists(String guildName, Integer personageId){
+
+    public boolean personageGuildsExists(String guildName, Integer personageId) {
         return gr.personageGuildsExists(guildName, personageId);
     }
-    
+
     public Guild findLastGuild(String pName) {
         return gr.findLastGuild(pName);
+    }
+
+    public Guild findLastGuildById(String personageId) {
+        return gr.findLastGuildById(personageId);
     }
 
 }

@@ -20,4 +20,8 @@ public interface GuildRepository extends JpaRepository<Guild, Long> {
             nativeQuery = true)
     Guild findLastGuild(@Param("name") String personageName);
 
+    @Query(value = "SELECT * FROM guild g WHERE parent_id = :personageId ORDER BY g.registered_date DESC LIMIT 1",
+            nativeQuery = true)
+    Guild findLastGuildById(@Param("personageId") String personageId);
+
 }
