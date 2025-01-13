@@ -19,6 +19,10 @@ public class WorldPersistence {
         return wr.findLastWorld(server);
     }
 
+    public String findLastWorldById(Integer personageId) {
+        return wr.findLastWorldById(personageId);
+    }
+
     public World save(World world) {
         return wr.save(world);
     }
