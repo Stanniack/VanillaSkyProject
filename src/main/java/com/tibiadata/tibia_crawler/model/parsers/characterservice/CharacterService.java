@@ -12,7 +12,6 @@ import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.entities.World;
-import com.tibiadata.tibia_crawler.model.exceptions.StringLengthException;
 import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.persistence.DeathPersistence;
@@ -29,16 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jsoup.helper.ValidationException;
@@ -105,11 +100,9 @@ public class CharacterService {
     //
     private Personage personage;
     private List<FormerName> formerNames;
-    private Sex sex = null;
-    private LevelProgress levelProgress = null;
-    private Achievements achievements = null;
-    private World world = null;
-    private Guild guild = null;
+    private Achievements achievements;
+    private World world;
+    private Guild guild;
     private List<House> houses;
     private List<House> cacheHouses;
     private List<Death> deaths;
@@ -119,7 +112,7 @@ public class CharacterService {
     private ElementsUtils elementUtils;
     private PriorityHandler pHandler;
 
-    public CharacterService(SexStrategy sexStrategy) {
+    public CharacterService() {
         this.attributesStrategyMap = new HashMap<>();
         this.attributesStrategyMap.put(TITLE, new TitleStrategy());
         this.attributesStrategyMap.put(VOCATION, new VocationStrategy());
@@ -141,9 +134,10 @@ public class CharacterService {
     }
 
     @Autowired
-    public void setObjectsStrategies(SexStrategy sexStrategy, GuildStrategy guildStrategy) {
-        this.objectsStrategyMap.put(SEX, sexStrategy);
-        this.objectsStrategyMap.put(GUILD, guildStrategy);
+    public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, GuildStrategy gStrategy) {
+        this.objectsStrategyMap.put(SEX, sStrategy);
+        this.objectsStrategyMap.put(LEVEL, lpStrategy);
+        this.objectsStrategyMap.put(GUILD, gStrategy);
     }
 
     public void fetchCharacter(String url) {
@@ -154,7 +148,8 @@ public class CharacterService {
             if (!itens.isEmpty()) {
                 personageHandler(itens);
                 personageAttributesHandler(itens);
-                persistHandler();
+                persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
+                persistFormerName(personage);
                 personageObjectsHandler(itens);
             }
         } catch (IOException | ValidationException ex) {
@@ -165,20 +160,9 @@ public class CharacterService {
     public void fetchCharacter(List<String> itens) {
         personageHandler(itens);
         personageAttributesHandler(itens);
-        persistHandler(); // Persistir antes de lidar com ObjectsHandler
-        personageObjectsHandler(itens);
-    }
-
-    private void persistHandler() {
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
         persistFormerName(personage);
-        //persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
-        //persistObject(levelProgress, lp -> lp.setPersonage(personage), lp -> lpp.save(lp));
-        //persistObject(achievements, achiev -> achiev.setPersonage(personage), achiev -> ap.save(achiev));
-        //persistObject(world, worldServer -> worldServer.setPersonage(personage), worldServer -> wp.save(worldServer));
-        //persistObject(guild, currentGuild -> currentGuild.setPersonage(personage), currentGuild -> gp.save(currentGuild));
-        //persistHouses(personage);
-        //persistDeaths(personage);
+        personageObjectsHandler(itens);
     }
 
     private void persistPersonage(Personage p) {
@@ -220,28 +204,6 @@ public class CharacterService {
 
     }
 
-    private void persistHouses(Personage p) {
-        houses.forEach(house -> {
-            house.setPersonage(p);
-            hp.save(house);
-        });
-    }
-
-    private void persistDeaths(Personage p) {
-        deaths.forEach(death -> {
-            death.setPersonage(p);
-            dp.save(death);
-        });
-    }
-
-    private <T> void persistObject(T object, Consumer<T> setPersonage, Consumer<T> dbPersister) {
-        // Se for diferente de nulo, então foi criado ou alterado
-        if (object != null) {
-            setPersonage.accept(object); //object.setPersonage(personage)
-            dbPersister.accept(object); // persistence.save(object)
-        }
-    }
-
     private void personageHandler(List<String> itens) {
         Personage recoveredPersonage = null;
         String name = null;
@@ -281,67 +243,10 @@ public class CharacterService {
         for (String item : itens) {
             for (var entry : objectsStrategyMap.entrySet()) {
                 if (item.contains(entry.getKey()) || item.matches(entry.getKey())) {
-                    entry.getValue().apply(personage, oldName, item);
+                    entry.getValue().apply(personage, item);
                 }
             }
         }
-
-        /*for (String item : itens) {
-
-            if (item.contains(SEX)) {
-                String genre = StringUtils.splitAndReplace(item, ITEM);
-
-                genericValidator(
-                        genre,
-                        param -> sp.findLastSex(param),
-                        (value, date) -> new Sex(value, date),
-                        newSex -> this.sex = newSex);
-
-            } else if (item.contains(LEVEL)) {
-                String level = StringUtils.splitAndReplace(item, ITEM);
-
-                genericValidator(
-                        level,
-                        param -> lpp.findLastLevelProgress(param),
-                        (value, date) -> new LevelProgress(value, date),
-                        newLevelProgress -> this.levelProgress = newLevelProgress);
-
-            } else if (item.contains(ACHIEVEMENTS)) {
-                String points = StringUtils.splitAndReplace(item, ITEM);
-                genericValidator(
-                        points,
-                        param -> ap.findLastPoints(param),
-                        (value, date) -> new Achievements(value, date),
-                        newAchievements -> this.achievements = newAchievements);
-
-            } else if (item.contains(WORLD)) {
-                String server = StringUtils.splitAndReplace(item, ITEM);
-                genericValidator(
-                        server,
-                        param -> wp.findLastWorld(param),
-                        (value, date) -> new World(value, date),
-                        newWorld -> this.world = newWorld);
-
-            } else if (item.contains(GUILD)) {
-                String currentGuild = StringUtils.splitAndReplace(item, ITEM);
-                String currentRank = StringUtils.splitAndReplace(currentGuild, "of the", 2, 0);
-                String currentGuildName = StringUtils.splitAndReplace(currentGuild, "of the", 2, 1);
-                guildValidator(currentRank, currentGuildName);
-
-            } else if (item.contains(HOUSE)) {
-                String houseName = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 1);
-                String paidUntil = StringUtils.splitAndReplace(item, ":|\\s?is paid until\\s?", 3, 2);
-                houseValidator(houseName, paidUntil);
-
-            } else if (item.matches(DEATH)) {
-                try {
-                    String[] occurrence = StringUtils.split(item, "\\s?(CET|CEST)\\s?");
-                    deathValidator(occurrence[0], occurrence[1]);
-                } catch (StringLengthException ex) {
-                    Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }*/
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
@@ -360,82 +265,6 @@ public class CharacterService {
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
             }
-        }
-    }
-
-    private void guildValidator(String rank, String guildName) {
-        Guild dbGuild = (oldName != null) ? gp.findLastGuild(oldName) : gp.findLastGuild(personage.getName());
-
-        // Se último guildName existe no bd e é igual ao guildName atual
-        if (dbGuild != null && dbGuild.getGuildName().equals(guildName)) {
-            // Se o rank não é igual ao do bd, alterar rank e persistir
-            if (!dbGuild.getRank().equals(rank)) {
-                dbGuild.setRank(rank);
-                this.guild = dbGuild; // atribui guild com valores alterados para persistir
-            }
-
-        } else { // Senão: guildName não existe, instanciar guild
-            this.guild = new Guild(rank, guildName, Calendar.getInstance());
-        }
-    }
-
-    private void houseValidator(String curHouseName, String curPaidUntil) {
-
-        // Armazena a verificação do banco de dados para evitar chamadas repetidas inúteis, uma vez que o valor no db não se altera dinamicamente enquanto a classe estiver sendo instanciada
-        if (cacheHouses == null) {
-            cacheHouses = (oldName != null) ? hp.findLastThreeHouses(oldName) : hp.findLastThreeHouses(personage.getName());
-        }
-
-        if (cacheHouses == null) {// Se dbHouse for nulo, persiste as houses que encontrar
-            houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
-
-        } else {
-            boolean found = false;
-            House curHouse = null;
-
-            for (House house : cacheHouses) {
-                if (house.getHouseName().equals(curHouseName)) { // Se encontrar a house na lista do bd, flag para persistência
-                    found = true;
-                    curHouse = house;
-                    break;
-                }
-            }
-
-            if (found && !curHouse.getPaidUntil().equals(curPaidUntil)) {// Se achou na lista do bd e paidUntil é diferente, alterar e persistir
-                curHouse.setPaidUntil(curPaidUntil);
-                houses.add(curHouse);
-
-            } else if (!found) { //Senão achou a house é nova
-                houses.add(new House(curHouseName, curPaidUntil, Calendar.getInstance()));
-            }
-        }
-
-    }
-
-    private void deathValidator(String deathDate, String occurrence) throws StringLengthException {
-
-        if (occurrence.length() <= STRLENTOLERANCE) {
-            Calendar convertedDeathDate = CalendarUtils.parseToCalendar(deathDate);
-            Date dbDate = (oldName != null) ? dp.findDeathByDate(convertedDeathDate, oldName) : dp.findDeathByDate(convertedDeathDate, personage.getName());
-
-            //Se a data da morte (horário incluso) buscada for nula (não existe!) a morte é nova, persistir
-            if (dbDate == null) {
-                deaths.add(new Death(occurrence, convertedDeathDate));
-            }
-
-        } else {
-            throw new StringLengthException("The string death occurrence is too long.");
-        }
-    }
-
-    private <T> void genericValidator(String newValue, Function<String, String> dbPersister, BiFunction<String, Calendar, T> object, Consumer<T> setter) {
-        // Se oldName existir, então verifica o último valor do antigo name
-        String dbValue = (oldName != null) ? dbPersister.apply(oldName) : dbPersister.apply(personage.getName());
-
-        // Se valor buscado no db é null ou não é igual o valor atual, setar valor atual para persistência
-        if (dbValue == null || !dbValue.equals(newValue)) {
-            T newObject = object.apply(newValue, Calendar.getInstance()); // instancia novo objeto
-            setter.accept(newObject); // altera valores
         }
     }
 }
