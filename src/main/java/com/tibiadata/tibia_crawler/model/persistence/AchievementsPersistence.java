@@ -18,6 +18,10 @@ public class AchievementsPersistence {
     public String findLastPoints(String name) {
         return ar.findLastPoints(name);
     }
+    
+    public String findLastPointsById (Integer personageId){
+        return ar.findLastPointsById(personageId);
+    }
 
     public Achievements save(Achievements points) {
         return ar.save(points);

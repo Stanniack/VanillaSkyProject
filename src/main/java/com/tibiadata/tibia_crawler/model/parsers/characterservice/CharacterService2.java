@@ -297,7 +297,6 @@ public class CharacterService2 {
 
             } else if (item.contains(LEVEL)) {
                 String level = StringUtils.splitAndReplace(item, ITEM);
-
                 genericValidator(level, param -> lpp.findLastLevelProgress(param), (value, date) -> new LevelProgress(value, date), newLevelProgress -> this.levelProgress = newLevelProgress);
 
             } else if (item.contains(ACHIEVEMENTS)) {

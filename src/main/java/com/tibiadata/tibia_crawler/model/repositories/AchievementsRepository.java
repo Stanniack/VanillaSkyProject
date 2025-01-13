@@ -16,4 +16,8 @@ public interface AchievementsRepository extends JpaRepository<Achievements, Long
     @Query(value = "SELECT points FROM achievements a JOIN Personage p ON a.parent_id = p.id WHERE p.name = :name ORDER BY a.day_progress DESC LIMIT 1",
             nativeQuery = true)
     String findLastPoints(@Param("name") String name);
+
+    @Query(value = "SELECT points FROM achievements a WHERE parent_id = :personageId ORDER BY a.day_progress DESC LIMIT 1",
+            nativeQuery = true)
+    String findLastPointsById(@Param("personageId") Integer personageId);
 }

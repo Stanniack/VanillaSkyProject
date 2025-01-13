@@ -48,8 +48,6 @@ import org.springframework.context.annotation.Scope;
 public class CharacterService {
 
     //
-    private int STRLENTOLERANCE = 500;
-    //
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
     //
@@ -84,15 +82,7 @@ public class CharacterService {
     @Autowired
     private FormerNamePersistence fnp;
     @Autowired
-    private SexPersistence sp;
-    @Autowired
-    private LevelProgressPersistence lpp;
-    @Autowired
-    private AchievementsPersistence ap;
-    @Autowired
     private WorldPersistence wp;
-    @Autowired
-    private GuildPersistence gp;
     @Autowired
     private HousePersistence hp;
     @Autowired
@@ -100,12 +90,6 @@ public class CharacterService {
     //
     private Personage personage;
     private List<FormerName> formerNames;
-    private Achievements achievements;
-    private World world;
-    private Guild guild;
-    private List<House> houses;
-    private List<House> cacheHouses;
-    private List<Death> deaths;
     //
     private Calendar calendar;
     private GetContent getContent;
@@ -123,8 +107,6 @@ public class CharacterService {
         this.attributesStrategyMap.put(CREATED, new CreatedStrategy());
 
         this.formerNames = new ArrayList<>();
-        this.houses = new ArrayList<>();
-        this.deaths = new ArrayList<>();
 
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
@@ -134,10 +116,14 @@ public class CharacterService {
     }
 
     @Autowired
-    public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, GuildStrategy gStrategy) {
+    public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, AchievementsStrategy aStrategy, GuildStrategy gStrategy) {
         this.objectsStrategyMap.put(SEX, sStrategy);
         this.objectsStrategyMap.put(LEVEL, lpStrategy);
+        this.objectsStrategyMap.put(ACHIEVEMENTS, aStrategy);
+        // world
         this.objectsStrategyMap.put(GUILD, gStrategy);
+        //house
+        //death
     }
 
     public void fetchCharacter(String url) {
