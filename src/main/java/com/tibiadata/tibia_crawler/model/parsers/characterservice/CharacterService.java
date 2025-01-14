@@ -212,7 +212,7 @@ public class CharacterService {
         for (String item : itens) { //16
             for (var entry : attributesStrategyMap.entrySet()) { //x7, = 112 verificações
                 if (item.contains(entry.getKey()) || item.matches(entry.getKey())) {
-                    entry.getValue().apply(personage, item, needsPersistence);
+                    needsPersistence = entry.getValue().apply(personage, item, needsPersistence);
                 }
             }
         }
