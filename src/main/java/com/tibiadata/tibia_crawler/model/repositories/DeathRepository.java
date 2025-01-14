@@ -19,4 +19,8 @@ public interface DeathRepository extends JpaRepository<Death, Long> {
             + "WHERE p.name = :name and death_date = :deathDate ORDER BY d.death_date DESC LIMIT 1", nativeQuery = true)
     Date findDeathByDate(@Param("deathDate") Calendar deathDate, @Param("name") String pName);
 
+    @Query(value = "SELECT death_date FROM Death d WHERE parent_id = :personageId AND death_date = :deathDate ORDER BY d.death_date DESC LIMIT 1",
+            nativeQuery = true)
+    Date findDeathByDateAndPersonageId(@Param("deathDate") Calendar deathDate, @Param("personageId") Integer personageId);
+
 }

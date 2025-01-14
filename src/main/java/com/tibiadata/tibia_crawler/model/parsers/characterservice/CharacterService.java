@@ -81,12 +81,6 @@ public class CharacterService {
     private PersonagePersistence pp;
     @Autowired
     private FormerNamePersistence fnp;
-    @Autowired
-    private WorldPersistence wp;
-    @Autowired
-    private HousePersistence hp;
-    @Autowired
-    private DeathPersistence dp;
     //
     private Personage personage;
     private List<FormerName> formerNames;
@@ -117,14 +111,14 @@ public class CharacterService {
 
     @Autowired
     public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, AchievementsStrategy aStrategy,
-            WorldStrategy wStrategy, GuildStrategy gStrategy, HouseStrategy hStrategy) {
+            WorldStrategy wStrategy, GuildStrategy gStrategy, HouseStrategy hStrategy, DeathStrategy dStrategy) {
         this.objectsStrategyMap.put(SEX, sStrategy);
         this.objectsStrategyMap.put(LEVEL, lpStrategy);
         this.objectsStrategyMap.put(ACHIEVEMENTS, aStrategy);
         this.objectsStrategyMap.put(WORLD, wStrategy);
         this.objectsStrategyMap.put(GUILD, gStrategy);
         this.objectsStrategyMap.put(HOUSE, hStrategy);
-        //death
+        this.objectsStrategyMap.put(DEATH, dStrategy);
     }
 
     public void fetchCharacter(String url) {
@@ -164,7 +158,6 @@ public class CharacterService {
         } else {
             System.out.println("Personage " + personage.getName() + " não precisa de persistência");
         }
-
     }
 
     private void persistFormerName(Personage p) {
@@ -188,7 +181,6 @@ public class CharacterService {
                 System.out.println("FN já existe no bd\n");
             }
         }
-
     }
 
     private void personageHandler(List<String> itens) {

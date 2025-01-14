@@ -21,6 +21,10 @@ public class DeathPersistence {
         return dr.findDeathByDate(deathDate, pName);
     }
 
+    public Date findDeathByDateAndPersonageId(Calendar deathDate, Integer personageId) {
+        return dr.findDeathByDateAndPersonageId(deathDate, personageId);
+    }
+
     public Death save(Death death) {
         return dr.save(death);
     }
