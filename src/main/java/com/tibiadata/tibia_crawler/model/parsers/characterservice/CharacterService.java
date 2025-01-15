@@ -1,7 +1,21 @@
 package com.tibiadata.tibia_crawler.model.parsers.characterservice;
 
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy.GuildStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy.*;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.HouseStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.CreatedStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LastLoginStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LevelProgressStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.WorldStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.TitleStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.ObjectStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AchievementsStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.SexStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AttributeStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AccStatusStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.VocationStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.DeathStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.ResidenceStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LoyaltyTitleStrategy;
+import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.GuildStrategy;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
@@ -38,22 +52,8 @@ public class CharacterService {
     private static final String FORMERNAMES = "Former Names:";
     //
     private Map<String, AttributeStrategy> attributesStrategyMap;
-    private static final String TITLE = ".*[0-9]+ titles unlocked.*";
-    private static final String VOCATION = "Vocation:";
-    private static final String RESIDENCE = "Residence:";
-    private static final String LASTLOGIN = "Last Login:";
-    private static final String ACCSTATUS = "Account Status:";
-    private static final String LOYALTYTITLE = "Loyalty Title:";
-    private static final String CREATED = "Created:";
     //
-    private Map<String, ObjectStrategy> objectsStrategyMap = new HashMap<>();
-    private static final String SEX = "Sex:";
-    private static final String LEVEL = "Level:";
-    private static final String ACHIEVEMENTS = "Achievement Points:";
-    private static final String WORLD = "World:";
-    private static final String GUILD = "Guild Membership:";
-    private static final String HOUSE = "House:";
-    private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
+    private Map<String, ObjectStrategy> objectsStrategyMap;
     //
     private static final String TRADED = "(traded)";
     //
@@ -62,48 +62,42 @@ public class CharacterService {
     private boolean existsName = false;
     private boolean needsPersistence = false;
     //
-    @Autowired
-    private PersonagePersistence pp;
-    @Autowired
-    private FormerNamePersistence fnp;
+    private final PersonagePersistence pp;
+    private final FormerNamePersistence fnp;
     //
     private Personage personage;
     private List<FormerName> formerNames;
     //
-    private Calendar calendar;
-    private GetContent getContent;
-    private ElementsUtils elementUtils;
-    private PriorityHandler pHandler;
+    private final GetContent getContent;
+    private final ElementsUtils elementUtils;
+    private final PriorityHandler pHandler;
 
-    public CharacterService() {
-        this.attributesStrategyMap = new HashMap<>();
-        this.attributesStrategyMap.put(TITLE, new TitleStrategy());
-        this.attributesStrategyMap.put(VOCATION, new VocationStrategy());
-        this.attributesStrategyMap.put(RESIDENCE, new ResidenceStrategy());
-        this.attributesStrategyMap.put(LASTLOGIN, new LastLoginStrategy());
-        this.attributesStrategyMap.put(ACCSTATUS, new AccStatusStrategy());
-        this.attributesStrategyMap.put(LOYALTYTITLE, new LoyaltyTitleStrategy());
-        this.attributesStrategyMap.put(CREATED, new CreatedStrategy());
+    @Autowired
+    public CharacterService(PersonagePersistence pp, FormerNamePersistence fnp, GetContent getContent, ElementsUtils elementUtils, PriorityHandler pHandler) {
+        this.pp = pp;
+        this.fnp = fnp;
+        //
+        this.getContent = getContent;
+        this.elementUtils = elementUtils;
+        this.pHandler = pHandler;
 
         this.formerNames = new ArrayList<>();
 
-        this.calendar = Calendar.getInstance();
-        this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
-        this.getContent = new GetContent();
-        this.elementUtils = new ElementsUtils();
-        this.pHandler = new PriorityHandler();
+    }
+
+    @Autowired
+    public void setAttributesStrategies(TitleStrategy tStrategy, VocationStrategy vStrategy, ResidenceStrategy rStrategy,
+            LastLoginStrategy llStrategy, AccStatusStrategy asStrategy, LoyaltyTitleStrategy ltStrategy, CreatedStrategy cStrategy,
+            List<AttributeStrategy> attrStrategiesList) {
+        this.attributesStrategyMap = new HashMap<>();
+        attrStrategiesList.forEach(strategy -> attributesStrategyMap.put(strategy.getKey(), strategy));
     }
 
     @Autowired
     public void setObjectsStrategies(SexStrategy sStrategy, LevelProgressStrategy lpStrategy, AchievementsStrategy aStrategy,
-            WorldStrategy wStrategy, GuildStrategy gStrategy, HouseStrategy hStrategy, DeathStrategy dStrategy) {
-        this.objectsStrategyMap.put(SEX, sStrategy);
-        this.objectsStrategyMap.put(LEVEL, lpStrategy);
-        this.objectsStrategyMap.put(ACHIEVEMENTS, aStrategy);
-        this.objectsStrategyMap.put(WORLD, wStrategy);
-        this.objectsStrategyMap.put(GUILD, gStrategy);
-        this.objectsStrategyMap.put(HOUSE, hStrategy);
-        this.objectsStrategyMap.put(DEATH, dStrategy);
+            WorldStrategy wStrategy, GuildStrategy gStrategy, HouseStrategy hStrategy, DeathStrategy dStrategy, List<ObjectStrategy> objStrategyList) {
+        this.objectsStrategyMap = new HashMap<>();
+        objStrategyList.forEach(strategy -> objectsStrategyMap.put(strategy.getKey(), strategy));
     }
 
     public void fetchCharacter(String url) {
@@ -112,11 +106,7 @@ public class CharacterService {
             List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
 
             if (!itens.isEmpty()) {
-                personageHandler(itens);
-                personageAttributesHandler(itens);
-                persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
-                persistFormerName(personage);
-                personageObjectsHandler(itens);
+                personageProcessor(itens);
             }
         } catch (IOException | ValidationException ex) {
             Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
@@ -124,25 +114,15 @@ public class CharacterService {
     }
 
     public void fetchCharacter(List<String> itens) {
+        personageProcessor(itens);
+    }
+
+    private void personageProcessor(List<String> itens) {
         personageHandler(itens);
         personageAttributesHandler(itens);
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
         persistFormerName(personage);
         personageObjectsHandler(itens);
-    }
-
-    private void persistPersonage(Personage p) {
-
-        if (needsPersistence) {
-            System.out.println("\n" + p.getName() + " persistido");
-            if (p.getRegisteredDate() == null) {
-                p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
-            }
-            pp.save(p);
-
-        } else {
-            System.out.println("Personage " + personage.getName() + " não precisa de persistência");
-        }
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
@@ -163,6 +143,20 @@ public class CharacterService {
         }
     }
 
+    private void persistPersonage(Personage p) {
+
+        if (needsPersistence) {
+            System.out.println("\n" + p.getName() + " persistido");
+            if (p.getRegisteredDate() == null) {
+                p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
+            }
+            pp.save(p);
+
+        } else {
+            System.out.println("Personage " + personage.getName() + " não precisa de persistência");
+        }
+    }
+
     private void persistFormerName(Personage p) {
 
         for (FormerName formerName : formerNames) {
@@ -170,7 +164,7 @@ public class CharacterService {
 
             // chama o bd só se date != null
             boolean greatherThan180days
-                    = date != null && CalendarUtils.greaterThan180Days(calendar, CalendarUtils.convertToCalendar(date));
+                    = date != null && CalendarUtils.greaterThan180Days(Calendar.getInstance(), CalendarUtils.convertToCalendar(date));
 
             boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
