@@ -4,7 +4,6 @@ import com.tibiadata.tibia_crawler.model.entities.Achievements;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.persistence.AchievementsPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class AchievementsStrategy implements ObjectStrategy {
 
-    //
     @Autowired
     private AchievementsPersistence ap;
-    //
+
+    private static final String ACHIEVEMENTS = "Achievement Points:";
     private static final short ITEM = 1;
-    //
+
     private Achievements achievements;
 
     @Override
@@ -34,6 +33,11 @@ public class AchievementsStrategy implements ObjectStrategy {
         );
 
         ObjectHandler.persistObject(achievements, _achievements -> _achievements.setPersonage(personage), _achievements -> ap.save(achievements));
+    }
+
+    @Override
+    public String getKey() {
+        return ACHIEVEMENTS;
     }
 
 }

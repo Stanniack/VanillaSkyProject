@@ -14,17 +14,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class WorldStrategy implements ObjectStrategy {
 
-    //
     @Autowired
     private WorldPersistence wp;
-    //
+
+    private static final String WORLD = "World:";
     private static final short ITEM = 1;
-    //
+
     private World world;
 
     @Override
     public <T> void apply(Personage personage, String newValue) {
-                ObjectHandler.genericValidator(
+        ObjectHandler.genericValidator(
                 personage,
                 StringUtils.splitAndReplace(newValue, ITEM),
                 param -> wp.findLastWorldById(param),
@@ -33,6 +33,11 @@ public class WorldStrategy implements ObjectStrategy {
         );
 
         ObjectHandler.persistObject(world, _world -> _world.setPersonage(personage), _world -> wp.save(_world));
+    }
+
+    @Override
+    public String getKey() {
+        return WORLD;
     }
 
 }

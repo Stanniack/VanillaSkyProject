@@ -4,7 +4,6 @@ import com.tibiadata.tibia_crawler.model.entities.Guild;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class GuildStrategy implements ObjectStrategy {
 
-    private static final int ITEM = 1;
-    //
     @Autowired
     private GuildPersistence gp;
-    //
+    
+    private static final String GUILD = "Guild Membership:";
+    private static final int ITEM = 1;
+
     private Guild guild;
 
     @Override
@@ -48,5 +48,10 @@ public class GuildStrategy implements ObjectStrategy {
         } else { // Senão: guildName não existe, instanciar guild
             this.guild = new Guild(rank, guildName, Calendar.getInstance());
         }
+    }
+
+    @Override
+    public String getKey() {
+        return GUILD;
     }
 }

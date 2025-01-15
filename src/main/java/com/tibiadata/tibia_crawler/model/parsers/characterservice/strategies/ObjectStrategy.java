@@ -9,4 +9,6 @@ import com.tibiadata.tibia_crawler.model.entities.Personage;
 public interface ObjectStrategy {
 
     <T> void apply(Personage personage, String newValue);
+
+    String getKey();
 }

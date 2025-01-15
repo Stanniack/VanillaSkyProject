@@ -4,7 +4,6 @@ import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +13,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SexStrategy implements ObjectStrategy {
 
-    //
     @Autowired
     private SexPersistence sp;
-    //
+
+    private static final String SEX = "Sex:";
     private static final short ITEM = 1;
-    //
+
     private Sex sex;
 
     @Override
@@ -33,5 +32,10 @@ public class SexStrategy implements ObjectStrategy {
         );
 
         ObjectHandler.persistObject(sex, _sex -> _sex.setPersonage(personage), _sex -> sp.save(_sex));
+    }
+
+    @Override
+    public String getKey() {
+        return SEX;
     }
 }

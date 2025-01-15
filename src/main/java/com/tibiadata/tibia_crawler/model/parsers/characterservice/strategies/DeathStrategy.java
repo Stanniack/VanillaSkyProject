@@ -22,12 +22,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class DeathStrategy implements ObjectStrategy {
 
-    //
     @Autowired
     private DeathPersistence dp;
-    //
+
+    private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
     private static final short STRLENTOLERANCE = 500;
-    //
+
     private List<Death> deaths = new ArrayList<>();
 
     @Override
@@ -62,6 +62,11 @@ public class DeathStrategy implements ObjectStrategy {
             death.setPersonage(p);
             dp.save(death);
         });
+    }
+
+    @Override
+    public String getKey() {
+        return DEATH;
     }
 
 }

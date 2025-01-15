@@ -17,12 +17,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class HouseStrategy implements ObjectStrategy {
 
-    //
     @Autowired
     private HousePersistence hp;
-    //
+
+    private static final String HOUSE = "House:";
     private static final short ITEM = 1;
-    //
+
     private List<House> houses = new ArrayList<>();
     private List<House> cacheHouses;
 
@@ -74,6 +74,11 @@ public class HouseStrategy implements ObjectStrategy {
             houseToPersist.setPersonage(p);
             hp.save(houseToPersist);
         });
+    }
+
+    @Override
+    public String getKey() {
+        return HOUSE;
     }
 
 }
