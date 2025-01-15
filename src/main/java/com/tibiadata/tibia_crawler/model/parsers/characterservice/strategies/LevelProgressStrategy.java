@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy;
+package com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies;
 
 import com.tibiadata.tibia_crawler.model.entities.LevelProgress;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
