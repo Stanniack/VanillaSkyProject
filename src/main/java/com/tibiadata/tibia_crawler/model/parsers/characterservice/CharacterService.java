@@ -61,7 +61,6 @@ public class CharacterService {
     //
     private boolean existsName = false;
     private boolean needsPersistence = false;
-    private String oldName;
     //
     @Autowired
     private PersonagePersistence pp;
@@ -156,7 +155,6 @@ public class CharacterService {
 
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
                 if (pp.existsByName(currentFormerName)) {
-                    oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
                     personage = pp.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
                     personage.setName(name); // Seta novo nome
                 }
