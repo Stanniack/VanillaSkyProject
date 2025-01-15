@@ -2,11 +2,13 @@ package com.tibiadata.tibia_crawler.model.parsers.characterservice.strategy;
 
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Devmachine
  */
+@Component
 public class VocationStrategy implements AttributeStrategy {
 
     //

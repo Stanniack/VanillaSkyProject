@@ -1,9 +1,12 @@
 package com.tibiadata.tibia_crawler.model.utils;
 
+import org.springframework.stereotype.Component;
+
 /**
  *
  * @author Devmachine
  */
+@Component
 public class ElementsUtils {
 
     private final String td = "td";
