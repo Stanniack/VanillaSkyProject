@@ -160,6 +160,25 @@ public class CharacterService {
         }
     }
 
+    private void formerNameValidator(boolean existsName, String formerName, String name) {
+        String[] splittedFormerNames = StringUtils.multSplit(formerName, "[:,]");
+
+        // Se não existe é novo ou trocou de nick
+        if (!existsName) {
+            for (int i = ITEM; i < splittedFormerNames.length; i++) {
+                String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
+
+                // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
+                if (pp.existsByName(currentFormerName)) {
+                    oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
+                    personage = pp.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
+                    personage.setName(name); // Seta novo nome
+                }
+                formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
+            }
+        }
+    }
+
     private void persistFormerName(Personage p) {
 
         for (FormerName formerName : formerNames) {
@@ -228,22 +247,4 @@ public class CharacterService {
         }
     }
 
-    private void formerNameValidator(boolean existsName, String formerName, String name) {
-        String[] splittedFormerNames = StringUtils.multSplit(formerName, "[:,]");
-
-        // Se não existe é novo ou trocou de nick
-        if (!existsName) {
-            for (int i = ITEM; i < splittedFormerNames.length; i++) {
-                String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
-
-                // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
-                if (pp.existsByName(currentFormerName)) {
-                    oldName = currentFormerName; // Guarda antigo nome para validações de atributos posteriores
-                    personage = pp.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
-                    personage.setName(name); // Seta novo nome
-                }
-                formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
-            }
-        }
-    }
 }

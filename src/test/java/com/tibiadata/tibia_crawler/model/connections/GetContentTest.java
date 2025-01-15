@@ -24,14 +24,14 @@ public class GetContentTest {
     private List<String> personageItens;
 
     @BeforeEach
-    private void loadContexts() {
+    public void loadContexts() {
         getContent = new GetContent();
         selectors = new ElementsUtils();
         priorityOrder = new PriorityHandler();
     }
 
     @BeforeEach
-    private void loadPersonageItens() {
+    public void loadPersonageItens() {
         try {
             String url = "https://www.tibia.com/community/?subtopic=characters&name=";
             String charName = "Vepeeh";
