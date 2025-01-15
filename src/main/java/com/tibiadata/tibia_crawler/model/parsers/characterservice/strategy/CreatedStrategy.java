@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreatedStrategy implements AttributeStrategy {
 
+    private static final String CREATED = "Created:";
     //
     private static final short ITEM = 1;
 
@@ -24,6 +25,11 @@ public class CreatedStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getCreated, Personage::setCreated, created);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return CREATED;
     }
 
 }

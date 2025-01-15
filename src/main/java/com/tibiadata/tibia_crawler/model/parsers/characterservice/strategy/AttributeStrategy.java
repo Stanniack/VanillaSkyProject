@@ -9,4 +9,5 @@ import com.tibiadata.tibia_crawler.model.entities.Personage;
 public interface AttributeStrategy {
 
     boolean apply(Personage personage, String item, boolean needsPersistence);
+    String getKey();
 }

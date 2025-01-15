@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
+
 public class VocationStrategy implements AttributeStrategy {
 
+    private static final String VOCATION = "Vocation:";
     //
     private static final short ITEM = 1;
 
@@ -24,6 +26,11 @@ public class VocationStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getVocation, Personage::setVocation, vocation);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return VOCATION;
     }
 
 }

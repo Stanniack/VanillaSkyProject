@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResidenceStrategy implements AttributeStrategy {
 
+    private static final String RESIDENCE = "Residence:";
+
     //
     private static final short ITEM = 1;
 
@@ -24,6 +26,11 @@ public class ResidenceStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getResidence, Personage::setResidence, residence);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return RESIDENCE;
     }
 
 }

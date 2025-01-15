@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TitleStrategy implements AttributeStrategy {
+    private static final String TITLE = ".*[0-9]+ titles unlocked.*";
 
     //
     private static final short ITEM = 1;
@@ -24,5 +25,10 @@ public class TitleStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getTitle, Personage::setTitle, title);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return TITLE;
     }
 }

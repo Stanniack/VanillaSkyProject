@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class LastLoginStrategy implements AttributeStrategy {
 
+    private static final String LASTLOGIN = "Last Login:";
+
     //
     private static final short ITEM = 1;
 
@@ -24,6 +26,11 @@ public class LastLoginStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getLastLogin, Personage::setLastLogin, lastLogin);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return LASTLOGIN;
     }
 
 }

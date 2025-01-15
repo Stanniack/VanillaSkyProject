@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoyaltyTitleStrategy implements AttributeStrategy {
 
+    private static final String LOYALTYTITLE = "Loyalty Title:";
+
     //
     private static final short ITEM = 1;
 
@@ -24,6 +26,11 @@ public class LoyaltyTitleStrategy implements AttributeStrategy {
             AttributeHandler.attributeValidator(personage, personage::getLoyaltyTitle, Personage::setLoyaltyTitle, loyaltyTitle);
         }
         return needsPersistence;
+    }
+
+    @Override
+    public String getKey() {
+        return LOYALTYTITLE;
     }
 
 }
