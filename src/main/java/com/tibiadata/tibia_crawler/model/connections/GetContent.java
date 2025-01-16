@@ -60,7 +60,7 @@ public class GetContent {
      * @throws IOException if an error occurs while connecting to the URL or
      * fetching the HTML content.
      */
-    public List<List<String>> getOnlinePlayers(String url, String select1, String select2) throws IOException {
+    public List<List<String>> getPlayersInfo(String url, String select1, String select2) throws IOException {
         Document document = Jsoup.connect(url).get(); // Pega o html
 
         String html = document.toString(); // HTML a ser limpo

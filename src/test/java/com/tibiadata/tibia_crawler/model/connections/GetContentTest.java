@@ -53,7 +53,7 @@ public class GetContentTest {
             String url = "https://www.tibia.com/community/?subtopic=worlds&world=";
             String world = "Antica";
 
-            List<List<String>> onlinePersonages = getContent.getOnlinePlayers(
+            List<List<String>> onlinePersonages = getContent.getPlayersInfo(
                     url + world,
                     selectors.getTrEvenOdd(),
                     selectors.getTd()
