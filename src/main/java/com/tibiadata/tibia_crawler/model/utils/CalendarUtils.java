@@ -3,6 +3,7 @@ package com.tibiadata.tibia_crawler.model.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,14 +14,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Classe utilitária para manipulação de datas e horários, fornecendo métodos
+ * para conversão, comparação e formatação de datas.
  *
  * @author Devmachine
  */
 public class CalendarUtils {
 
     /**
+     * Retorna a data e hora atual no formato "yyyy-MM-dd HH:mm:ss".
      *
-     * @return local date yyyy-MM-dd HH:mm:ss
+     * @return String contendo a data e hora atual formatada.
      */
     public static String getDate() {
         Calendar calendar = Calendar.getInstance();
@@ -29,10 +33,10 @@ public class CalendarUtils {
     }
 
     /**
-     * Convert a Date format to Calendar
+     * Converte um objeto Date para um objeto Calendar.
      *
-     * @param date Date to be converted to Calendar
-     * @return Calendar
+     * @param date Data a ser convertida para Calendar.
+     * @return Calendar correspondente à data fornecida.
      */
     public static Calendar convertToCalendar(Date date) {
         Calendar converted = Calendar.getInstance();
@@ -41,10 +45,13 @@ public class CalendarUtils {
     }
 
     /**
-     * @param date1 compare to date 2
-     * @param date2 is compared with date 1
-     * @return true if the comparison between date1 and date2 is greater/equal
-     * than 180 days
+     * Compara duas datas para verificar se a diferença entre elas é maior ou
+     * igual a 180 dias.
+     *
+     * @param date1 Primeira data a ser comparada.
+     * @param date2 Segunda data a ser comparada.
+     * @return {@code true} se a diferença entre as duas datas for maior ou
+     * igual a 180 dias, {@code false} caso contrário.
      */
     public static boolean greaterThan180Days(Calendar date1, Calendar date2) {
         long diffInMillis = Math.abs(date1.getTimeInMillis() - date2.getTimeInMillis()); // Calcular a diferença em milissegundos
@@ -54,13 +61,15 @@ public class CalendarUtils {
     }
 
     /**
-     * @param date a string format MM/dd/YYYY to be converted in calendar
-     * @return A formated calendar
+     * Converte uma string no formato "MM/dd/yyyy" para um objeto Calendar.
+     *
+     * @param date A string representando uma data no formato "MM/dd/yyyy".
+     * @return O objeto Calendar correspondente à data fornecida.
      */
     public static Calendar parseDate(String date) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-            sdf.setLenient(false); // desativa datas improváveis
+            sdf.setLenient(false); // Desativa datas improváveis
             Date parsedDate = sdf.parse(date);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(parsedDate);
@@ -74,38 +83,37 @@ public class CalendarUtils {
     }
 
     /**
-     * Converts a string representing a date and time in the format "MMM d yyyy,
-     * HH:mm:ss" to a Calendar object, using the "Europe/Paris" time zone.
+     * Converte uma string representando uma data e hora no formato "MMM d yyyy,
+     * HH:mm:ss" para um objeto Calendar, usando o fuso horário "Europe/Paris".
      *
-     * @param textDate the date string in the format "MMM d yyyy, HH:mm:ss" to
-     * be parsed
-     * @return a Calendar instance representing the parsed date and time in the
-     * "Europe/Paris" time zone
+     * @param textDate A string representando a data e hora no formato "MMM d
+     * yyyy, HH:mm:ss".
+     * @return Um objeto Calendar representando a data e hora convertidas para o
+     * fuso horário "Europe/Paris".
      */
     public static Calendar parseToCalendar(String textDate) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH:mm:ss", Locale.ENGLISH);// Define o padrão do formato "Mmm d yyyy"
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH:mm:ss", Locale.ENGLISH); // Define o padrão do formato "Mmm d yyyy"
 
         ZonedDateTime zonedDateTime = LocalDateTime.parse(textDate, formatter)
                 .atZone(ZoneId.of("Europe/Paris"));
 
-        Date date = Date.from(zonedDateTime.toInstant());// Converte ZonedDateTime para Date
+        Date date = Date.from(zonedDateTime.toInstant()); // Converte ZonedDateTime para Date
 
-        Calendar calendar = Calendar.getInstance();// Cria uma instância de Calendar e define a data
+        Calendar calendar = Calendar.getInstance(); // Cria uma instância de Calendar e define a data
         calendar.setTime(date);
 
         return calendar;
     }
 
     /**
-     * Compares two Calendar objects to check if they represent the same date
-     * and time. The comparison includes year, month, day, hour, minute, and
-     * second.
+     * Compara dois objetos Calendar para verificar se eles representam a mesma
+     * data e hora, incluindo ano, mês, dia, hora, minuto e segundo.
      *
-     * @param c1 the first Calendar instance
-     * @param c2 the second Calendar instance
-     * @return true if both Calendar instances represent the same date and time,
-     * false otherwise
+     * @param c1 O primeiro objeto Calendar a ser comparado.
+     * @param c2 O segundo objeto Calendar a ser comparado.
+     * @return {@code true} se ambos os objetos Calendar representam a mesma
+     * data e hora, {@code false} caso contrário.
      */
     public static boolean isSameDateTime(Calendar c1, Calendar c2) {
         return c1 != null && c2 != null
@@ -115,6 +123,17 @@ public class CalendarUtils {
                 && c1.get(Calendar.HOUR_OF_DAY) == c2.get(Calendar.HOUR_OF_DAY)
                 && c1.get(Calendar.MINUTE) == c2.get(Calendar.MINUTE)
                 && c1.get(Calendar.SECOND) == c2.get(Calendar.SECOND);
+    }
+
+    /**
+     * Verifica se o minuto atual é igual ao minuto fornecido.
+     *
+     * @param minute O minuto a ser comparado com o minuto atual.
+     * @return {@code true} se o minuto atual for igual ao fornecido,
+     * {@code false} caso contrário.
+     */
+    public static boolean isCurrentMinute(int minute) {
+        return LocalTime.now().getMinute() == minute;
     }
 
 }
