@@ -34,6 +34,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.context.annotation.Scope;
 
 /**
@@ -94,11 +96,16 @@ public class CharacterService {
         objStrategyList.forEach(strategy -> objectsStrategyMap.put(strategy.getKey(), strategy));
     }
 
-    public void fetchCharacter(String url) throws IOException {
-        List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
+    public void fetchCharacter(String url) {
+        List<String> itens = null;
+        try {
+            itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
 
-        if (!itens.isEmpty()) {
-            personageProcessor(itens);
+            if (!itens.isEmpty()) {
+                personageProcessor(itens);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, "Erro ao processar o personagem: {0}", itens);
         }
 
     }
