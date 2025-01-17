@@ -34,9 +34,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.jsoup.helper.ValidationException;
 import org.springframework.context.annotation.Scope;
 
 /**
@@ -97,17 +94,13 @@ public class CharacterService {
         objStrategyList.forEach(strategy -> objectsStrategyMap.put(strategy.getKey(), strategy));
     }
 
-    public void fetchCharacter(String url) {
+    public void fetchCharacter(String url) throws IOException {
+        List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
 
-        try {
-            List<String> itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
-
-            if (!itens.isEmpty()) {
-                personageProcessor(itens);
-            }
-        } catch (IOException | ValidationException ex) {
-            Logger.getLogger(CharacterService2.class.getName()).log(Level.SEVERE, null, ex);
+        if (!itens.isEmpty()) {
+            personageProcessor(itens);
         }
+
     }
 
     public void fetchCharacter(List<String> itens) {
