@@ -41,7 +41,7 @@ public class DeathStrategy implements ObjectStrategy {
             deathValidator(personage, occurrence[0], occurrence[1]);
             persistDeaths(personage);
         } catch (StringLengthException ex) {
-            Logger.getLogger(DeathStrategy.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DeathStrategy.class.getName()).log(Level.SEVERE, "The Death's string length is too long. Cannot persist.");
         }
     }
 
