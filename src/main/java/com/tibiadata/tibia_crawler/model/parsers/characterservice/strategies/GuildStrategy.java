@@ -6,6 +6,7 @@ import com.tibiadata.tibia_crawler.model.persistence.GuildPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import java.util.Calendar;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
  * @author Devmachine
  */
 @Service
+@Scope("prototype")
 public class GuildStrategy implements ObjectStrategy {
 
     @Autowired

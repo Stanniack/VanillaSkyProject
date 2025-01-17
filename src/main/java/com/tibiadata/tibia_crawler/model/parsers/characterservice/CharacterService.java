@@ -66,7 +66,7 @@ public class CharacterService {
     private final FormerNamePersistence fnp;
     //
     private Personage personage;
-    private List<FormerName> formerNames;
+    private List<FormerName> formerNames = new ArrayList<>();
     //
     private final GetContent getContent;
     private final ElementsUtils elementUtils;
@@ -80,9 +80,6 @@ public class CharacterService {
         this.getContent = getContent;
         this.elementUtils = elementUtils;
         this.pHandler = pHandler;
-
-        this.formerNames = new ArrayList<>();
-
     }
 
     @Autowired
@@ -118,11 +115,36 @@ public class CharacterService {
     }
 
     private void personageProcessor(List<String> itens) {
-        personageHandler(itens);
+        personageValidator(itens);
         personageAttributesHandler(itens);
         persistPersonage(personage); // É preciso persistir o personagem para certificar que a instância do objeto tem um ID para regras posteriores
         persistFormerName(personage);
         personageObjectsHandler(itens);
+        //personage = null;
+    }
+
+    private void personageValidator(List<String> itens) {
+        Personage recoveredPersonage = null;
+        String name = null;
+
+        for (String item : itens) {
+
+            if (item.contains(NAME)) {
+                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
+                recoveredPersonage = pp.findByName(name); // recupera personagem se existir
+
+                personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
+
+                if (recoveredPersonage == null) {
+                    needsPersistence = true;
+                    personage.setName(name); // set name apenas se for um novo personagem
+                }
+
+            } else if (item.contains(FORMERNAMES)) {
+                existsName = recoveredPersonage != null; // se for falso, o personagem existe mas trocou de nome
+                formerNameValidator(existsName, item, name);
+            }
+        }
     }
 
     private void formerNameValidator(boolean existsName, String formerName, String name) {
@@ -171,35 +193,11 @@ public class CharacterService {
             // Se o former name NÃO existe, persistir
             // ou a data do último FN EXISTE associada ao Personage e a data de registro for maior ou igual a 180 dias, persistir.
             if (!isFnExists || (date != null && greatherThan180days)) {
-                formerName.setPersonage(personage);
+                formerName.setPersonage(p);
                 fnp.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
                 System.out.println("FN já existe no bd\n");
-            }
-        }
-    }
-
-    private void personageHandler(List<String> itens) {
-        Personage recoveredPersonage = null;
-        String name = null;
-
-        for (String item : itens) {
-
-            if (item.contains(NAME)) {
-                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
-                recoveredPersonage = pp.findByName(name); // recupera personagem se existir
-
-                personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
-
-                if (recoveredPersonage == null) {
-                    needsPersistence = true;
-                    personage.setName(name); // set name apenas se for um novo personagem
-                }
-
-            } else if (item.contains(FORMERNAMES)) {
-                existsName = recoveredPersonage != null; // se for falso, o personagem existe mas trocou de nome
-                formerNameValidator(existsName, item, name);
             }
         }
     }

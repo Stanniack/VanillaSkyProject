@@ -6,6 +6,7 @@ import com.tibiadata.tibia_crawler.model.exceptions.StringLengthException;
 import com.tibiadata.tibia_crawler.model.persistence.DeathPersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
+@Scope("prototype")
 public class DeathStrategy implements ObjectStrategy {
 
     @Autowired
@@ -57,10 +60,10 @@ public class DeathStrategy implements ObjectStrategy {
         }
     }
 
-    private void persistDeaths(Personage p) {
+    @Transactional
+    private void persistDeaths(Personage personage) {
         deaths.forEach(death -> {
-            death.setPersonage(p);
-            dp.save(death);
+            ObjectHandler.persistObject(death, _death -> _death.setPersonage(personage), _death -> dp.save(_death));
         });
     }
 

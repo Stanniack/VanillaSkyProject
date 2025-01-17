@@ -5,12 +5,14 @@ import com.tibiadata.tibia_crawler.model.entities.Sex;
 import com.tibiadata.tibia_crawler.model.persistence.SexPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
  * @author Devmachine
  */
 @Component
+@Scope("prototype")
 public class SexStrategy implements ObjectStrategy {
 
     @Autowired

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
+@Scope("prototype")
 public class HouseStrategy implements ObjectStrategy {
 
     @Autowired
@@ -69,9 +71,9 @@ public class HouseStrategy implements ObjectStrategy {
 
     }
 
-    private void persistHouses(Personage p) {
+    private void persistHouses(Personage personage) {
         houses.forEach(houseToPersist -> {
-            houseToPersist.setPersonage(p);
+            houseToPersist.setPersonage(personage);
             hp.save(houseToPersist);
         });
     }

@@ -5,6 +5,7 @@ import com.tibiadata.tibia_crawler.model.entities.World;
 import com.tibiadata.tibia_crawler.model.persistence.WorldPersistence;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
+@Scope("prototype")
 public class WorldStrategy implements ObjectStrategy {
 
     @Autowired
