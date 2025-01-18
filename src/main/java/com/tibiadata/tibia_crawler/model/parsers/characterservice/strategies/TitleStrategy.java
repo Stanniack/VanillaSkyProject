@@ -10,7 +10,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TitleStrategy implements AttributeStrategy {
-    private static final String TITLE = ".*[0-9]+ titles unlocked.*";
+
+    private static final String TITLE = ".*[0-9]+ (title|titles) unlocked.*";
 
     //
     private static final short ITEM = 1;
