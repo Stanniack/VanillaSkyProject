@@ -55,6 +55,7 @@ public class CharacterService {
     private Map<String, ObjectStrategy> objectsStrategyMap;
     //
     private static final String TRADED = "(traded)";
+    private static final String ISDELETED = ", will be deleted at (\\w{3} \\d{1,2} \\d{4}, \\d{2}:\\d{2}:\\d{2}) (CET|CEST)";
     //
     private static final int ITEM = 1;
     //
@@ -131,7 +132,7 @@ public class CharacterService {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, ""); // trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
+                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, "").replaceAll(ISDELETED, "");// trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
                 recoveredPersonage = pp.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
