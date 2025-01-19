@@ -105,7 +105,8 @@ public class CharacterService {
                 personageProcessor(itens);
             }
         } catch (IOException ex) {
-            Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, "Erro ao processar o personagem: {0}", itens);
+            Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, "Erro ao processar o personagem");
+            // guardar a url do personagem para persistência posterior
         }
 
     }
@@ -168,14 +169,14 @@ public class CharacterService {
     private void persistPersonage(Personage p) {
 
         if (needsPersistence) {
-            System.out.println("\n" + p.getName() + " persistido");
+            System.out.println(p.getName() + " persistido.");
             if (p.getRegisteredDate() == null) {
                 p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
             }
             pp.save(p);
 
         } else {
-            System.out.println("Personage " + personage.getName() + " não precisa de persistência");
+            System.out.println("Character " + personage.getName() + " não precisa de persistência.");
         }
     }
 
@@ -197,7 +198,7 @@ public class CharacterService {
                 fnp.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
-                System.out.println("FN já existe no bd\n");
+                System.out.println("FN já existe no bd.");
             }
         }
     }
