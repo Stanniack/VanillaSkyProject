@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class FormerName {
 
     @Id
@@ -34,12 +40,6 @@ public class FormerName {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar changeDate;
 
-    /**
-     * Hibernate needs a default constructor
-     */
-    public FormerName() {
-    }
-
     public FormerName(String formerName, Calendar registratedDate) {
         this.formerName = formerName;
         this.changeDate = registratedDate;
@@ -50,42 +50,4 @@ public class FormerName {
         this.personage = personage;
         this.changeDate = registratedDate;
     }
-
-    public String getFormerName() {
-        return formerName;
-    }
-
-    public void setFormerName(String formerName) {
-        this.formerName = formerName;
-    }
-
-    public Calendar getChangeDate() {
-        return changeDate;
-    }
-
-    public void setChangeDate(Calendar changeDate) {
-        this.changeDate = changeDate;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
-    }
-
-    @Override
-    public String toString() {
-        return "FormerName{" + "formerName=" + formerName + ", personage=" + personage + '}';
-    }
-
 }

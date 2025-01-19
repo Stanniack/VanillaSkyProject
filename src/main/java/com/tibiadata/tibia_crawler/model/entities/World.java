@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class World {
 
     @Id
@@ -34,38 +40,8 @@ public class World {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar changeDate;
 
-    /**
-     * Hibernate needs a default constructor
-     */
-    public World() {
-    }
-
     public World(String server, Calendar changeDate) {
         this.server = server;
-        this.changeDate = changeDate;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
-    }
-
-    public Calendar getChangeDate() {
-        return changeDate;
-    }
-
-    public void setChangeDate(Calendar changeDate) {
         this.changeDate = changeDate;
     }
 

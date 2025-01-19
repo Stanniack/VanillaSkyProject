@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Death {
 
     @Id
@@ -34,36 +40,9 @@ public class Death {
     @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
     private Personage personage;
 
-    public Death() {
-    }
-
     public Death(String occurrence, Calendar deathDate) {
         this.occurrence = occurrence;
         this.deathDate = deathDate;
-    }
-
-    public String getOccurrence() {
-        return occurrence;
-    }
-
-    public void setOccurrence(String occurrence) {
-        this.occurrence = occurrence;
-    }
-
-    public Calendar getDeathDate() {
-        return deathDate;
-    }
-
-    public void setDeathDate(Calendar deathDate) {
-        this.deathDate = deathDate;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
     }
 
 }

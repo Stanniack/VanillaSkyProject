@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class House {
 
     @Id
@@ -37,45 +43,9 @@ public class House {
     @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
     private Personage personage;
 
-    public House() {
-    }
-
     public House(String houseName, String paidUntil, Calendar registeredDate) {
         this.houseName = houseName;
         this.paidUntil = paidUntil;
         this.registeredDate = registeredDate;
     }
-
-    public String getHouseName() {
-        return houseName;
-    }
-
-    public void setHouseName(String houseName) {
-        this.houseName = houseName;
-    }
-
-    public String getPaidUntil() {
-        return paidUntil;
-    }
-
-    public void setPaidUntil(String paidUntil) {
-        this.paidUntil = paidUntil;
-    }
-
-    public Calendar getRegisteredDate() {
-        return registeredDate;
-    }
-
-    public void setRegisteredDate(Calendar registeredDate) {
-        this.registeredDate = registeredDate;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
-    }
-
 }

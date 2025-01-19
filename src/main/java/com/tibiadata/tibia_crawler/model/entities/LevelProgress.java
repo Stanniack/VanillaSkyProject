@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class LevelProgress {
 
     @Id
@@ -34,39 +40,8 @@ public class LevelProgress {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar dayProgress;
 
-    /**
-     * Hibernate needs a default constructor
-     */
-    public LevelProgress() {
-    }
-
     public LevelProgress(String level, Calendar dayProgress) {
         this.level = level;
         this.dayProgress = dayProgress;
     }
-
-    public String getLevel() {
-        return level;
-    }
-
-    public void setLevel(String level) {
-        this.level = level;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
-    }
-
-    public Calendar getDayProgress() {
-        return dayProgress;
-    }
-
-    public void setDayProgress(Calendar dayProgress) {
-        this.dayProgress = dayProgress;
-    }
-
 }

@@ -11,12 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Calendar;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  *
  * @author Devmachine
  */
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Achievements {
 
     @Id
@@ -34,38 +40,8 @@ public class Achievements {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar dayProgress;
 
-    /**
-     * Hibernate needs a default constructor
-     */
-    public Achievements() {
-    }
-
     public Achievements(String points, Calendar dayProgress) {
         this.points = points;
-        this.dayProgress = dayProgress;
-    }
-
-    public String getPoints() {
-        return points;
-    }
-
-    public void setPoints(String points) {
-        this.points = points;
-    }
-
-    public Personage getPersonage() {
-        return personage;
-    }
-
-    public void setPersonage(Personage personage) {
-        this.personage = personage;
-    }
-
-    public Calendar getDayProgress() {
-        return dayProgress;
-    }
-
-    public void setDayProgress(Calendar dayProgress) {
         this.dayProgress = dayProgress;
     }
 

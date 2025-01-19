@@ -23,30 +23,21 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Guild {
+public class OnlineTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
-    private String rank;
-
-    @Column(nullable = false)
-    private String guildName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", nullable = false) // FK será associada ao "id" de Personage
-    private Personage personage;
+    private Integer seconds;
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar registeredDate;
 
-    public Guild(String rank, String guildName, Calendar registeredDate) {
-        this.rank = rank;
-        this.guildName = guildName;
-        this.registeredDate = registeredDate;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false)
+    private Personage personage;
 
 }
