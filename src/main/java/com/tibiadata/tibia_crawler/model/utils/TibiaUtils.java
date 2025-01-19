@@ -22,8 +22,15 @@ public class TibiaUtils {
             "Vitera", "Vunira", "Wadira", "Wildera", "Wintera", "Xyla", "Yara", "Yonabra", "Yovera",
             "Yubra", "Zephyra", "Zuna", "Zunera");
 
+    private static List<String> experimentalWorlds = Arrays.asList(
+            "Zuna", "Zunera");
+
     public static List<String> getWorlds() {
         return worlds;
+    }
+
+    public static List<String> getExperimentalWorlds() {
+        return experimentalWorlds;
     }
 
 }
