@@ -1,3 +1,4 @@
+package com.tibiadata.tibia_crawler.model.utils;
 
 public class StringUtils {
 
