@@ -3,6 +3,7 @@ package com.tibiadata.tibia_crawler.model.mocks;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.parsers.characterservice.CharacterProcessor;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
+import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,9 +86,9 @@ public class HighScoreMock {
      * Método responsável por simular o processamento dos jogadores do ranking
      * utilizando múltiplas threads.
      *
-     * Divide o trabalho de processamento de páginas em múltiplas threads, sendo que
-     * cada thread processa um intervalo de páginas especificado. O número de
-     * threads e páginas por thread pode ser configurado conforme necessário.
+     * Divide o trabalho de processamento de páginas em múltiplas threads, sendo
+     * que cada thread processa um intervalo de páginas especificado. O número
+     * de threads e páginas por thread pode ser configurado conforme necessário.
      *
      * O método cria um pool de threads com o número especificado de threads e
      * distribui as páginas entre as threads, executando o processamento em
@@ -103,10 +104,10 @@ public class HighScoreMock {
 
         ExecutorService executor = Executors.newFixedThreadPool(totalThreads); // Criação de pool com o número de threads especificado
 
-        for (int i = 0; i < totalThreads; i++) { 
+        for (int i = 0; i < totalThreads; i++) {
             final int start = i * pagesPerThread;
             final int end = (i + 1) * pagesPerThread;
-            Runnable task = () -> processGlobalHighscorePage(start, end); // Criação de uma nova tarefa para cada thread
+            Runnable task = () -> processGlobalHighscorePages(start, end); // Criação de uma nova tarefa para cada thread
             executor.execute(task); // Execução da tarefa
         }
         executor.shutdown(); // Finaliza o ExecutorService
@@ -125,7 +126,7 @@ public class HighScoreMock {
      * @throws IOException Se ocorrer um erro ao obter ou processar os dados da
      * página.
      */
-    private void processGlobalHighscorePage(int start, int end) {
+    private void processGlobalHighscorePages(int start, int end) {
         for (int i = start; i < end; i++) {
             try {
                 characterProcessor.processNames(
@@ -144,6 +145,96 @@ public class HighScoreMock {
                     Thread.currentThread().interrupt();//
                 }
             }
+        }
+    }
+
+    /**
+     * Processa todas as páginas de pontuação de todos os mundos, profissões e
+     * páginas possíveis, distribuindo o trabalho entre múltiplas threads para
+     * otimizar o tempo de execução.
+     *
+     * A função divide o total de páginas de pontuação entre as threads de forma
+     * que cada thread processe um subconjunto específico de páginas, sem
+     * sobreposição de dados entre as threads. Após o processamento, as threads
+     * são finalizadas.
+     */
+    public void processAllHighscorePages() {
+        List<String> worlds = TibiaUtils.getWorlds();
+        int totalThreads = 10; // Número máximo de threads permitidas
+
+        List<HighscoreTask> tasks = new ArrayList<>();
+
+        // Gera todas as combinações possíveis de (mundo, profissão, página)
+        for (String world : worlds) {
+            for (int j = 1; j <= 5; j++) { // 5 profissões
+                for (int k = 1; k <= 20; k++) { // 20 páginas por profissão
+                    tasks.add(new HighscoreTask(world, j, k));
+                }
+            }
+        }
+
+        int totalTasks = tasks.size(); // Número total de combinações (mundo, profissão, página)
+        int tasksPerThread = (int) Math.ceil(totalTasks / (double) totalThreads); // Divide as tarefas entre as threads
+
+        ExecutorService executor = Executors.newFixedThreadPool(totalThreads); // Cria um pool fixo de threads
+
+        // Divisão das tarefas entre as threads
+        for (int i = 0; i < totalThreads; i++) {
+            final int start = i * tasksPerThread; // Índice inicial para a thread
+            final int end = Math.min(start + tasksPerThread, totalTasks); // Índice final da thread (evita ultrapassar o tamanho da lista)
+
+            List<HighscoreTask> threadTasks = tasks.subList(start, end); // Define o subconjunto de tarefas para esta thread
+
+            Runnable task = () -> {
+                for (HighscoreTask highscoreTask : threadTasks) {
+                    try {
+                        // Monta a URL com os parâmetros do mundo, profissão e página
+                        List<String> content = getHighscoreNicks(
+                                String.format(
+                                        "https://www.tibia.com/community/?subtopic=highscores&world=%s&beprotection=-1&category=6&profession=%d&currentpage=%d",
+                                        highscoreTask.world, highscoreTask.profession, highscoreTask.page
+                                ),
+                                elementsUtil.getTrBgcolor2(),
+                                elementsUtil.getTd()
+                        );
+
+                        // Processa os nicks obtidos da página
+                        for (String nick : content) {
+                            characterProcessor.processName(nick);
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(HighScoreMock.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            };
+
+            executor.execute(task); // Envia a tarefa para ser executada no pool de threads
+        }
+
+        executor.shutdown(); // Finaliza o ExecutorService após a execução de todas as threads
+    }
+
+    /**
+     * Classe auxiliar que representa uma tarefa de processamento de pontuação
+     * de um mundo, profissão e página específicos.
+     */
+    private static class HighscoreTask {
+
+        String world; // Mundo a ser processado
+        int profession; // Profissão a ser processada
+        int page; // Página de pontuação a ser processada
+
+        /**
+         * Construtor da classe HighscoreTask.
+         *
+         * @param world o mundo a ser processado
+         * @param profession a profissão a ser processada
+         * @param page a página a ser processada
+         */
+        HighscoreTask(String world, int profession, int page) {
+            this.world = world;
+            this.profession = profession;
+            this.page = page;
         }
     }
 
