@@ -1,5 +1,6 @@
 package com.tibiadata.tibia_crawler.model.connections;
 
+import com.tibiadata.tibia_crawler.TibiaCrawlerApplication4;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
@@ -11,24 +12,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  *
  * @author Devmachine
  */
+@SpringBootTest(classes = TibiaCrawlerApplication4.class)
 public class GetContentTest {
 
+    @Autowired
     private GetContent getContent;
-    private ElementsUtils selectors;
+    @Autowired
+    private ElementsUtils elementsUtils;
+    @Autowired
     private PriorityHandler priorityOrder;
     private List<String> personageItens;
-
-    @BeforeEach
-    public void loadContexts() {
-        getContent = new GetContent();
-        selectors = new ElementsUtils();
-        priorityOrder = new PriorityHandler();
-    }
 
     @BeforeEach
     public void loadPersonageItens() {
@@ -38,8 +38,8 @@ public class GetContentTest {
 
             personageItens = getContent.getTableContent(
                     url + charName,
-                    selectors.getTrBgcolor(),
-                    selectors.getTr()
+                    elementsUtils.getTrBgcolor(),
+                    elementsUtils.getTr()
             );
 
         } catch (IOException ex) {
@@ -55,8 +55,8 @@ public class GetContentTest {
 
             List<List<String>> onlinePersonages = getContent.getPlayersInfo(
                     url + world,
-                    selectors.getTrEvenOdd(),
-                    selectors.getTd()
+                    elementsUtils.getTrEvenOdd(),
+                    elementsUtils.getTd()
             );
 
             assertFalse(onlinePersonages.isEmpty(), "The returned list is empty. Check the url and world");

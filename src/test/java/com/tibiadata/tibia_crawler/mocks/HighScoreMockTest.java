@@ -1,6 +1,6 @@
 package com.tibiadata.tibia_crawler.mocks;
 
-import com.tibiadata.tibia_crawler.TibiaCrawlerApplication;
+import com.tibiadata.tibia_crawler.TibiaCrawlerApplication4;
 import com.tibiadata.tibia_crawler.model.mocks.HighScoreMock;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import java.io.IOException;
@@ -15,16 +15,16 @@ import org.springframework.boot.test.context.SpringBootTest;
  *
  * @author Devmachine
  */
-@SpringBootTest(classes = TibiaCrawlerApplication.class)
+@SpringBootTest(classes = TibiaCrawlerApplication4.class)
 public class HighScoreMockTest {
 
     @Autowired
     private HighScoreMock hsm;
-    private ElementsUtils selectors;
+    private ElementsUtils elementsUtils;
 
     @BeforeEach
     public void loadContexts() {
-        this.selectors = new ElementsUtils();
+        this.elementsUtils = new ElementsUtils();
     }
 
     @Test
@@ -33,8 +33,8 @@ public class HighScoreMockTest {
         List<String> nicks = hsm
                 .getHighscoreNicks(
                         "https://www.tibia.com/community/?subtopic=highscores&world=&beprotection=-1&category=6&profession=&currentpage=1",
-                        selectors.getTrBgcolor2(),
-                        selectors.getTd());
+                        elementsUtils.getTrBgcolor2(),
+                        elementsUtils.getTd());
 
         assertTrue(nicks.size() == 50, "The highscore page is NOT working.");
     }
