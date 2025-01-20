@@ -51,3 +51,4 @@ src/main/java/com/tibiadata/tibia_crawler/model/connections/Main6.java
 .idea/encodings.xml
 .idea/jarRepositories.xml
 .idea/misc.xml
+nbactions.xml
