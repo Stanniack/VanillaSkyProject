@@ -6,6 +6,7 @@ import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,6 +15,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GetContent {
+
+    private BrotliDescompacter brotliDescompacter;
+
+    @Autowired
+    public GetContent(BrotliDescompacter brotliDescompacter) {
+        this.brotliDescompacter = brotliDescompacter;
+    }
 
     /**
      * Fetches and extracts table content from a given URL using CSS selectors.
@@ -29,9 +37,7 @@ public class GetContent {
      * fetching the HTML content.
      */
     public List<String> getTableContent(String url, String select1, String select2) throws IOException {
-        Document document = Jsoup.connect(url).get(); // Pega o html
-
-        String html = document.toString(); // HTML a ser limpo
+        String html = brotliDescompacter.gzipBrDescompacter(url); // HTML a ser limpo
 
         // Fazer parsing do HTML
         Document parserDocument = Jsoup.parse(html);
@@ -61,9 +67,7 @@ public class GetContent {
      * fetching the HTML content.
      */
     public List<List<String>> getPlayersInfo(String url, String select1, String select2) throws IOException {
-        Document document = Jsoup.connect(url).get(); // Pega o html
-
-        String html = document.toString(); // HTML a ser limpo
+        String html = brotliDescompacter.gzipBrDescompacter(url); // HTML a ser limpo
 
         // Fazer parsing do HTML
         Document parserDocument = Jsoup.parse(html);
