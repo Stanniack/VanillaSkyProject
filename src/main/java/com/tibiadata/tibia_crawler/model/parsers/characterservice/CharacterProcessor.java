@@ -1,5 +1,6 @@
 package com.tibiadata.tibia_crawler.model.parsers.characterservice;
 
+import com.tibiadata.tibia_crawler.model.utils.StringUtils;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import org.springframework.beans.factory.ObjectProvider;
@@ -19,17 +20,13 @@ public class CharacterProcessor {
     // Método que recebe uma lista de nomes e faz o processamento
     public void processNames(List<String> names) {
         for (String name : names) {
-            fetcher(name);
+            processName(name);
         }
     }
 
-    public void processName(String name) {
-        fetcher(name);
-    }
-
-    private void fetcher(String name) {
+    public Integer processName(String name) {
         CharacterService characterService = getCharacterServiceProvider().getObject();
-        characterService.fetchCharacter("https://www.tibia.com/community/?subtopic=characters&name=" + name);
+        return characterService.fetchCharacter("https://www.tibia.com/community/?subtopic=characters&name=" + StringUtils.nameFormater(name));
     }
 
     private ObjectProvider<CharacterService> getCharacterServiceProvider() {
