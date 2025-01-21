@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.mocks;
+package com.tibiadata.tibia_crawler.model.mocks;
 
 import com.tibiadata.tibia_crawler.TibiaCrawlerApplication4;
 import com.tibiadata.tibia_crawler.model.mocks.HighScoreMock;
