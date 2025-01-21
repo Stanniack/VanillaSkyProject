@@ -24,6 +24,7 @@ public class BrotliDescompacter {
         URL link = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) link.openConnection();
         connection.setRequestProperty("Accept-Encoding", "gzip, br");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
         InputStream inputStream = connection.getInputStream();
         String encoding = connection.getContentEncoding();
