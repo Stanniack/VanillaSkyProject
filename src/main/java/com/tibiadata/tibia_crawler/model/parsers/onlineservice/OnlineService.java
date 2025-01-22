@@ -59,46 +59,37 @@ public class OnlineService {
 
     public Map<String, Map<String, Long>> serversVerifier() {
 
-        while (!CalendarUtils.isCurrentMinute(45)) { // Aguarda até que o minuto atual seja 03
+        while (!CalendarUtils.isCurrentMinute(10)) { // Aguarda até que o minuto atual seja 03
 
             for (String world : Arrays.asList("Zunera")) { // Itera sobre a lista de mundos 
-                Long startTime2 = System.currentTimeMillis();
-                List<List<String>> content = onlinePlayersProcessor(world); // Obtém a lista de jogadores online
+                Long startTime = System.currentTimeMillis();
+                List<List<String>> playersList = onlinePlayersProcessor(world); // Obtém a lista de jogadores online
 
                 worldOnlinePlayers.putIfAbsent(world, new HashMap<>());
                 worldTotalPlayers.putIfAbsent(world, new HashMap<>());
                 worldOfflinePlayers.putIfAbsent(world, new HashMap<>());
 
-                for (List<String> players : content) { // Itera sobre cada lista de jogadores
+                for (List<String> players : playersList) { // Itera sobre cada lista de jogadores
                     String[] infoPlayer = StringUtils.split(String.join(", ", players), "\\d+", 2); // Divide a string do jogador, ignorando level e profissão
                     String player = infoPlayer[0].trim(); // Trata o nome do jogador (retira espaços)
 
                     /* Mapa auxiliar para somar tempo online do jogador? Teste de mesa para Samarcarna!!!*/
-                    if (worldOfflinePlayers.get(world).containsKey(player)) { //Se o jogador estiver no mapa de off, então ele já deslogou e logou
-                        worldOnlinePlayers.get(world).put(player, worldOfflinePlayers.get(world).get(player));
+                    if (worldTotalPlayers.get(world).get(player) != null) { //Se diferente de nulo ent player já tem entrada
+                        long currentOnlineTime = worldTotalPlayers.get(world).get(player) + (System.currentTimeMillis() - startTime);
+                        worldOnlinePlayers.get(world).put(player, currentOnlineTime);
 
-                    } else {
-
-                        if (worldTotalPlayers.get(world).get(player) != null) { //Se diferente de nulo ent player já tem entrada
-
-                            if (player.equals("Samarcana")) {
-                                System.out.println(worldTotalPlayers.get(world).get(player) + (System.currentTimeMillis() - startTime2));
-                            }
-
-                            long currentOnlineTime = worldTotalPlayers.get(world).get(player) + (System.currentTimeMillis() - startTime2);
-                            worldOnlinePlayers.get(world).put(player, currentOnlineTime);
-
-                        } else {// Senão nova entrada do player
-                            worldOnlinePlayers.get(world).put(player, 0L);
-                        }
+                    } else {// Senão nova entrada do player
+                        worldOnlinePlayers.get(world).put(player, 0L);
                     }
-                }
+
+                } // fim for mundos
 
                 Iterator<String> iterator = worldTotalPlayers.get(world).keySet().iterator();
 
                 while (iterator.hasNext()) {
                     String name = iterator.next();
                     if (!worldOnlinePlayers.get(world).containsKey(name)) { // Se o jogador não estiver mais online
+                        onlineCharacterProcessor.onlineCharacter(name, worldTotalPlayers.get(world).get(name).intValue()); // persistência simultânea
                         worldOfflinePlayers.get(world).put(name, worldTotalPlayers.get(world).get(name)); // Move o jogador para a lista de offline
                         iterator.remove();
                     }
