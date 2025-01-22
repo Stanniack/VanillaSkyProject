@@ -8,35 +8,45 @@ import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author Devmachine
  */
+@Service
 public class OnlineService {
 
+    private GetContent getContent;
+    private OnlineCharacterProcessor onlineCharacterProcessor;
+    private ElementsUtils elementsUtils;
+
     private Map<String, Map<String, Long>> worldOnlinePlayers = new HashMap<>();
-    private Map<String, Long> onlinePlayers = new HashMap<>();
-
     private Map<String, Map<String, Long>> worldTotalPlayers = new HashMap<>();
-    private Map<String, Long> totalPlayers = new HashMap<>();
-
     private Map<String, Map<String, Long>> worldOfflinePlayers = new HashMap<>();
-    private Map<String, Long> offlinePlayers = new HashMap<>();
 
-    private List<List<String>> playersOnlineProcessor(String world) {
+    @Autowired
+    public OnlineService(GetContent getContent, ElementsUtils elementsUtils, OnlineCharacterProcessor onlineCharacterProcessor) {
+        this.getContent = getContent;
+        this.elementsUtils = elementsUtils;
+        this.onlineCharacterProcessor = onlineCharacterProcessor;
+    }
+
+    private List<List<String>> onlinePlayersProcessor(String world) {
         try {
-            List<List<String>> content = new GetContent().
+            List<List<String>> content = getContent.
                     getPlayersInfo(
                             "https://www.tibia.com/community/?subtopic=worlds&world=" + world,
-                            new ElementsUtils().getTrEvenOdd(),
-                            new ElementsUtils().getTr());
+                            elementsUtils.getTrEvenOdd(),
+                            elementsUtils.getTr());
 
             return content;
 
@@ -47,52 +57,65 @@ public class OnlineService {
         return Arrays.asList();
     }
 
-    public void serversVerifier() {
-        Long startTime = System.currentTimeMillis();
+    public Map<String, Map<String, Long>> serversVerifier() {
 
-        while (!CalendarUtils.isCurrentMinute(45)) {
+        while (!CalendarUtils.isCurrentMinute(45)) { // Aguarda até que o minuto atual seja 03
 
-            for (String world : TibiaUtils.getWorlds()) {
-                System.out.println(world);
-                List<List<String>> content = playersOnlineProcessor(world);
+            for (String world : Arrays.asList("Zunera")) { // Itera sobre a lista de mundos 
+                Long startTime2 = System.currentTimeMillis();
+                List<List<String>> content = onlinePlayersProcessor(world); // Obtém a lista de jogadores online
+
                 worldOnlinePlayers.putIfAbsent(world, new HashMap<>());
                 worldTotalPlayers.putIfAbsent(world, new HashMap<>());
                 worldOfflinePlayers.putIfAbsent(world, new HashMap<>());
 
-                for (List<String> players : content) {
-                    String[] infoPlayer = StringUtils.split(String.join(", ", players), "\\d+", 2);
-                    String player = infoPlayer[0].trim();
+                for (List<String> players : content) { // Itera sobre cada lista de jogadores
+                    String[] infoPlayer = StringUtils.split(String.join(", ", players), "\\d+", 2); // Divide a string do jogador, ignorando level e profissão
+                    String player = infoPlayer[0].trim(); // Trata o nome do jogador (retira espaços)
 
-                    if (!worldOnlinePlayers.get(world).containsKey(player)) {
-
-                        if (worldOfflinePlayers.get(world).containsKey(player)) {
-                            worldOnlinePlayers.get(world).put(player, worldOfflinePlayers.get(world).get(player));
-                        } else {
-                            worldOnlinePlayers.get(world).put(player, System.currentTimeMillis() - startTime);
-                        }
+                    /* Mapa auxiliar para somar tempo online do jogador? Teste de mesa para Samarcarna!!!*/
+                    if (worldOfflinePlayers.get(world).containsKey(player)) { //Se o jogador estiver no mapa de off, então ele já deslogou e logou
+                        worldOnlinePlayers.get(world).put(player, worldOfflinePlayers.get(world).get(player));
 
                     } else {
-                        worldOnlinePlayers.get(world).replace(player, (worldOnlinePlayers.get(world).get(player) + System.currentTimeMillis() - startTime));
+
+                        if (worldTotalPlayers.get(world).get(player) != null) { //Se diferente de nulo ent player já tem entrada
+
+                            if (player.equals("Samarcana")) {
+                                System.out.println(worldTotalPlayers.get(world).get(player) + (System.currentTimeMillis() - startTime2));
+                            }
+
+                            long currentOnlineTime = worldTotalPlayers.get(world).get(player) + (System.currentTimeMillis() - startTime2);
+                            worldOnlinePlayers.get(world).put(player, currentOnlineTime);
+
+                        } else {// Senão nova entrada do player
+                            worldOnlinePlayers.get(world).put(player, 0L);
+                        }
                     }
                 }
 
                 Iterator<String> iterator = worldTotalPlayers.get(world).keySet().iterator();
 
                 while (iterator.hasNext()) {
-                    String player = iterator.next();
-                    if (!worldOnlinePlayers.get(world).containsKey(player)) {
-                        //System.out.println(LocalTime.now() + " Deslogou: " + player);
-                        worldOfflinePlayers.get(world).put(player, worldTotalPlayers.get(world).get(player));
-                        iterator.remove(); // Remove o jogador enquanto itera
+                    String name = iterator.next();
+                    if (!worldOnlinePlayers.get(world).containsKey(name)) { // Se o jogador não estiver mais online
+                        worldOfflinePlayers.get(world).put(name, worldTotalPlayers.get(world).get(name)); // Move o jogador para a lista de offline
+                        iterator.remove();
                     }
                 }
 
-                worldTotalPlayers.get(world).putAll(worldOnlinePlayers.get(world));
-                worldOnlinePlayers.get(world).clear();
+                worldTotalPlayers.get(world).putAll(worldOnlinePlayers.get(world)); // Atualiza a lista total com os jogadores online do mundo
+                worldOnlinePlayers.get(world).clear(); // Limpa a lista de jogadores online do mundo
             }
 
-        }
+        } // Fim while
 
+        printPlayers();
+
+        return worldTotalPlayers;
+    }
+
+    private void printPlayers() {
         System.out.println("---------");
         for (var entry : worldTotalPlayers.entrySet()) {
             entry.getValue().entrySet().forEach(nicks -> System.out.println(nicks));
@@ -101,57 +124,6 @@ public class OnlineService {
         System.out.println("---------");
         for (var entry : worldOfflinePlayers.entrySet()) {
             entry.getValue().entrySet().forEach(nicks -> System.out.println(nicks));
-        }
-    }
-
-    public void serverVerifier() {
-        Long startTime = System.currentTimeMillis();
-
-        while (!CalendarUtils.isCurrentMinute(0)) {
-
-            List<List<String>> content = playersOnlineProcessor("Zunera");
-
-            for (List<String> players : content) {
-                String[] infoPlayer = StringUtils.split(String.join(", ", players), "\\d+", 2);
-                String player = infoPlayer[0].trim();
-
-                if (!onlinePlayers.containsKey(player)) {
-
-                    if (offlinePlayers.containsKey(player)) {
-                        onlinePlayers.put(player, offlinePlayers.get(player));
-                    } else {
-                        onlinePlayers.put(player, System.currentTimeMillis() - startTime);
-                    }
-
-                } else {
-                    onlinePlayers.replace(player, System.currentTimeMillis() - startTime);
-                }
-            }
-
-            String offline = null;
-
-            for (var player : totalPlayers.keySet()) {
-                if (!onlinePlayers.containsKey(player)) {
-                    System.out.println(LocalTime.now() + " Deslogou: " + player);
-                    offlinePlayers.put(player, totalPlayers.get(player));
-                    offline = player;
-                }
-            }
-
-            totalPlayers.remove(offline);
-            totalPlayers.putAll(onlinePlayers);
-            worldOnlinePlayers.clear();
-
-        }
-
-        System.out.println("---------");
-        for (var entry : totalPlayers.entrySet()) {
-            System.out.println(entry);
-        }
-
-        System.out.println("---------");
-        for (var entry : offlinePlayers.entrySet()) {
-            System.out.println(entry);
         }
     }
 
