@@ -40,4 +40,10 @@ public class OnlineTime {
     @JoinColumn(name = "parent_id", nullable = false)
     private Personage personage;
 
+    public OnlineTime(Integer seconds, Calendar registeredDate, Personage personage) {
+        this.seconds = seconds;
+        this.registeredDate = registeredDate;
+        this.personage = personage;
+    }
+
 }
