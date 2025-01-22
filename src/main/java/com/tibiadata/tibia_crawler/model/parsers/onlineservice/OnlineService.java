@@ -4,7 +4,7 @@ import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,45 +13,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- *
  * @author Devmachine
  */
 @Service
 public class OnlineService {
-
-    private final GetContent getContent;
+    private final OnlineWorldPlayersProcessor onlineWorldPlayersProcessor;
     private final OnlineCharacterProcessor onlineCharacterProcessor;
-    private final ElementsUtils elementsUtils;
 
     private final Map<String, Map<String, Long>> worldOnlinePlayers = new HashMap<>();
     private final Map<String, Map<String, Long>> worldTotalPlayers = new HashMap<>();
     private final Map<String, Map<String, Long>> worldOfflinePlayers = new HashMap<>();
 
     @Autowired
-    public OnlineService(GetContent getContent, ElementsUtils elementsUtils, OnlineCharacterProcessor onlineCharacterProcessor) {
-        this.getContent = getContent;
-        this.elementsUtils = elementsUtils;
+    public OnlineService(OnlineWorldPlayersProcessor onlineWorldPlayersProcessor, OnlineCharacterProcessor onlineCharacterProcessor) {
+        this.onlineWorldPlayersProcessor = onlineWorldPlayersProcessor;
         this.onlineCharacterProcessor = onlineCharacterProcessor;
-    }
-
-    private List<List<String>> onlinePlayersProcessor(String world) {
-        try {
-
-            return getContent.
-                    getPlayersInfo(
-                            "https://www.tibia.com/community/?subtopic=worlds&world=" + world,
-                            elementsUtils.getTrEvenOdd(),
-                            elementsUtils.getTr());
-
-        } catch (IOException ex) {
-            Logger.getLogger(OnlineService.class.getName()).log(Level.SEVERE, "Erro ao tentar buscar a pagina do servidor.");
-        }
-
-        return Arrays.asList();
     }
 
     //!!! retorna lista contendo total players e off players e só persiste tempo online de total. A persistência dos personagens ocorre em ambas as listas?
@@ -61,7 +42,7 @@ public class OnlineService {
 
             for (String world : Arrays.asList("Zunera")) { // Itera sobre a lista de mundos 
                 long startTime = System.currentTimeMillis();
-                List<List<String>> playersList = onlinePlayersProcessor(world); // Obtém a lista de jogadores online
+                List<List<String>> playersList = onlineWorldPlayersProcessor.processWorld(world); // Obtém a lista de jogadores online
 
                 worldOnlinePlayers.putIfAbsent(world, new HashMap<>());
                 worldTotalPlayers.putIfAbsent(world, new HashMap<>());
