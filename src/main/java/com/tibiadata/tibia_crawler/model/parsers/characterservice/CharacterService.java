@@ -180,7 +180,7 @@ public class CharacterService {
             pp.save(p);
 
         } else {
-            System.out.println("Character " + personage.getName() + " não precisa de persistência.");
+            System.out.println(personage.getName() + " não precisa de persistência.");
         }
     }
 
