@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 import org.brotli.dec.BrotliInputStream;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
+@Scope("prototype")
 public class BrotliDescompacter {
 
     public String gzipBrDescompacter(String url) throws MalformedURLException, IOException {
@@ -23,6 +25,13 @@ public class BrotliDescompacter {
 
         URL link = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) link.openConnection();
+
+        // Desabilitar cache
+        connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+        connection.setRequestProperty("Pragma", "no-cache");
+        connection.setRequestProperty("Expires", "0");
+
+        // Outros cabeçalhos
         connection.setRequestProperty("Accept-Encoding", "gzip, br");
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
@@ -47,4 +56,5 @@ public class BrotliDescompacter {
 
         return response.toString();
     }
+
 }
