@@ -97,7 +97,7 @@ public class CharacterService {
         objStrategyList.forEach(strategy -> objectsStrategyMap.put(strategy.getKey(), strategy));
     }
 
-    public void fetchCharacter(String url) {
+    public Integer fetchCharacter(String url) {
         List<String> itens = null;
         try {
             itens = pHandler.reorderList(getContent.getTableContent(url, elementUtils.getTrBgcolor(), elementUtils.getTr()));
@@ -105,11 +105,14 @@ public class CharacterService {
             if (!itens.isEmpty()) {
                 personageProcessor(itens);
             }
+
+            return personage.getId();
+
         } catch (IOException ex) {
             Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, "Erro ao processar o personagem");
             // guardar a url do personagem para persistência posterior
         }
-
+        return -1;
     }
 
     public void fetchCharacter(List<String> itens) {
