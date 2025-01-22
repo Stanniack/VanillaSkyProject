@@ -136,4 +136,24 @@ public class CalendarUtils {
         return LocalTime.now().getMinute() == minute;
     }
 
+    /**
+     * Verifica se a data fornecida corresponde ao dia de hoje, ignorando horas,
+     * minutos, segundos e milissegundos.
+     *
+     * @param calendar A data a ser comparada com a data atual.
+     * @return {@code true} se a data fornecida for o mesmo dia que hoje,
+     * {@code false} caso contrário.
+     */
+    public static boolean isSameDate(Calendar calendar) {
+        if (calendar == null) {
+            return false;
+        }
+
+        Calendar today = Calendar.getInstance();
+
+        return calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)
+                && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH)
+                && calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH);
+    }
+
 }
