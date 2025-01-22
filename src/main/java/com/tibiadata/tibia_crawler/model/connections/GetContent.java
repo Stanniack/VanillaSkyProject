@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetContent {
 
-    private BrotliDescompacter brotliDescompacter;
+    private final BrotliDescompacter brotliDescompacter;
 
     @Autowired
     public GetContent(BrotliDescompacter brotliDescompacter) {

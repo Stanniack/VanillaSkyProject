@@ -23,13 +23,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class OnlineService {
 
-    private GetContent getContent;
-    private OnlineCharacterProcessor onlineCharacterProcessor;
-    private ElementsUtils elementsUtils;
+    private final GetContent getContent;
+    private final OnlineCharacterProcessor onlineCharacterProcessor;
+    private final ElementsUtils elementsUtils;
 
-    private Map<String, Map<String, Long>> worldOnlinePlayers = new HashMap<>();
-    private Map<String, Map<String, Long>> worldTotalPlayers = new HashMap<>();
-    private Map<String, Map<String, Long>> worldOfflinePlayers = new HashMap<>();
+    private final Map<String, Map<String, Long>> worldOnlinePlayers = new HashMap<>();
+    private final Map<String, Map<String, Long>> worldTotalPlayers = new HashMap<>();
+    private final Map<String, Map<String, Long>> worldOfflinePlayers = new HashMap<>();
 
     @Autowired
     public OnlineService(GetContent getContent, ElementsUtils elementsUtils, OnlineCharacterProcessor onlineCharacterProcessor) {
@@ -40,13 +40,12 @@ public class OnlineService {
 
     private List<List<String>> onlinePlayersProcessor(String world) {
         try {
-            List<List<String>> content = getContent.
+
+            return getContent.
                     getPlayersInfo(
                             "https://www.tibia.com/community/?subtopic=worlds&world=" + world,
                             elementsUtils.getTrEvenOdd(),
                             elementsUtils.getTr());
-
-            return content;
 
         } catch (IOException ex) {
             Logger.getLogger(OnlineService.class.getName()).log(Level.SEVERE, "Erro ao tentar buscar a pagina do servidor.");
@@ -55,12 +54,13 @@ public class OnlineService {
         return Arrays.asList();
     }
 
+    //!!! retorna lista contendo total players e off players e só persiste tempo online de total. A persistência dos personagens ocorre em ambas as listas?
     public Map<String, Map<String, Long>> serversVerifier() {
 
-        while (!CalendarUtils.isCurrentMinute(10)) { // Aguarda até que o minuto atual seja 03
+        while (!CalendarUtils.isCurrentMinute(16)) { // Aguarda até que o minuto atual seja 03
 
             for (String world : Arrays.asList("Zunera")) { // Itera sobre a lista de mundos 
-                Long startTime = System.currentTimeMillis();
+                long startTime = System.currentTimeMillis();
                 List<List<String>> playersList = onlinePlayersProcessor(world); // Obtém a lista de jogadores online
 
                 worldOnlinePlayers.putIfAbsent(world, new HashMap<>());
@@ -107,12 +107,12 @@ public class OnlineService {
     private void printPlayers() {
         System.out.println("---------");
         for (var entry : worldTotalPlayers.entrySet()) {
-            entry.getValue().entrySet().forEach(nicks -> System.out.println(nicks));
+            entry.getValue().entrySet().forEach(System.out::println);
         }
 
         System.out.println("---------");
         for (var entry : worldOfflinePlayers.entrySet()) {
-            entry.getValue().entrySet().forEach(nicks -> System.out.println(nicks));
+            entry.getValue().entrySet().forEach(System.out::println);
         }
     }
 

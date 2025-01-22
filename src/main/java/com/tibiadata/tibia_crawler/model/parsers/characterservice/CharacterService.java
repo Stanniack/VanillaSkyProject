@@ -55,27 +55,25 @@ public class CharacterService {
     private Map<String, ObjectStrategy> objectsStrategyMap;
     //
     private static final String TRADED = "(traded)";
-    private static final String ISDELETED = ", will be deleted at (\\w{3} \\d{1,2} \\d{4}, \\d{2}:\\d{2}:\\d{2}) (CET|CEST)";
+    private static final String DELETED = ", will be deleted at (\\w{3} \\d{1,2} \\d{4}, \\d{2}:\\d{2}:\\d{2}) (CET|CEST)";
     //
     private static final int ITEM = 1;
-    //
-    private boolean existsName = false;
     private boolean needsPersistence = false;
     //
-    private final PersonagePersistence pp;
-    private final FormerNamePersistence fnp;
+    private final PersonagePersistence personagePersistence;
+    private final FormerNamePersistence formerNamePersistence;
     //
     private Personage personage;
-    private List<FormerName> formerNames = new ArrayList<>();
+    private final List<FormerName> formerNames = new ArrayList<>();
     //
     private final GetContent getContent;
     private final ElementsUtils elementUtils;
     private final PriorityHandler pHandler;
 
     @Autowired
-    public CharacterService(PersonagePersistence pp, FormerNamePersistence fnp, GetContent getContent, ElementsUtils elementUtils, PriorityHandler pHandler) {
-        this.pp = pp;
-        this.fnp = fnp;
+    public CharacterService(PersonagePersistence personagePersistence, FormerNamePersistence formerNamePersistence, GetContent getContent, ElementsUtils elementUtils, PriorityHandler pHandler) {
+        this.personagePersistence = personagePersistence;
+        this.formerNamePersistence = formerNamePersistence;
         //
         this.getContent = getContent;
         this.elementUtils = elementUtils;
@@ -135,8 +133,8 @@ public class CharacterService {
         for (String item : itens) {
 
             if (item.contains(NAME)) {
-                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, "").replaceAll(ISDELETED, "");// trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
-                recoveredPersonage = pp.findByName(name); // recupera personagem se existir
+                name = StringUtils.splitAndReplace(item, ITEM).replace(TRADED, "").replaceAll(DELETED, "");// trata o nome do personagem, elima (traded) se o personagem vier do Bazaar
+                recoveredPersonage = personagePersistence.findByName(name); // recupera personagem se existir
 
                 personage = (recoveredPersonage == null) ? new Personage() : recoveredPersonage; // recupera ou cria novo personagem
 
@@ -146,7 +144,7 @@ public class CharacterService {
                 }
 
             } else if (item.contains(FORMERNAMES)) {
-                existsName = recoveredPersonage != null; // se for falso, o personagem existe mas trocou de nome
+                boolean existsName = recoveredPersonage != null; // se for falso, o personagem existe mas trocou de nome
                 formerNameValidator(existsName, item, name);
             }
         }
@@ -161,8 +159,8 @@ public class CharacterService {
                 String currentFormerName = StringUtils.replaceFirstSpace(splittedFormerNames[i]);
 
                 // pelo menos um former name existe na coluna de names? Personagem existe mas nome foi trocado
-                if (pp.existsByName(currentFormerName)) {
-                    personage = pp.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
+                if (personagePersistence.existsByName(currentFormerName)) {
+                    personage = personagePersistence.findByName(currentFormerName); // Recupera o personagem existente com o antigo nome
                     personage.setName(name); // Seta novo nome
                 }
                 formerNames.add(new FormerName(currentFormerName, Calendar.getInstance())); // add novo fn
@@ -177,7 +175,7 @@ public class CharacterService {
             if (p.getRegisteredDate() == null) {
                 p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
             }
-            pp.save(p);
+            personagePersistence.save(p);
 
         } else {
             System.out.println(personage.getName() + " não precisa de persistência.");
@@ -187,19 +185,19 @@ public class CharacterService {
     private void persistFormerName(Personage p) {
 
         for (FormerName formerName : formerNames) {
-            Date date = fnp.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
+            Date date = formerNamePersistence.findDateOfLastFormerNameRegistered(formerName.getFormerName(), p.getId());
 
             // chama o bd só se date != null
             boolean greatherThan180days
                     = date != null && CalendarUtils.greaterThan180Days(Calendar.getInstance(), CalendarUtils.convertToCalendar(date));
 
-            boolean isFnExists = fnp.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
+            boolean isFnExists = formerNamePersistence.isFormerNameFromPersonage(formerName.getFormerName(), p.getId());
 
             // Se o former name NÃO existe, persistir
             // ou a data do último FN EXISTE associada ao Personage e a data de registro for maior ou igual a 180 dias, persistir.
             if (!isFnExists || (date != null && greatherThan180days)) {
                 formerName.setPersonage(p);
-                fnp.save(formerName);
+                formerNamePersistence.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
                 System.out.println("FN já existe no bd.");

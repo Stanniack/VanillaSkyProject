@@ -24,8 +24,8 @@ public class HighScoreMock {
     private static final int NICKNAME_INDEX = 1;
 
     private final CharacterProcessor characterProcessor;
-    private GetContent getContent;
-    private ElementsUtils elementsUtil;
+    private final GetContent getContent;
+    private final ElementsUtils elementsUtil;
 
     @Autowired
     public HighScoreMock(CharacterProcessor characterProcessor, ElementsUtils elementsUtils, GetContent getContent) {
@@ -47,12 +47,11 @@ public class HighScoreMock {
      * página.
      */
     public List<List<String>> getHighscorePlayers(String url, String filter1, String filter2) throws IOException {
-        List<List<String>> content = getContent.getPlayersInfo(
+
+        return getContent.getPlayersInfo(
                 url,
                 filter1,
                 filter2);
-
-        return content;
     }
 
     /**
@@ -99,8 +98,8 @@ public class HighScoreMock {
      */
     public void mockGlobalHighscorePlayers() {
 
-        int totalThreads = 1; // Número de threads conforme necessário
-        int pagesPerThread = 20; // Número de páginas por thread
+        int totalThreads = 2; // Número de threads conforme necessário
+        int pagesPerThread = 10; // Número de páginas por thread
 
         ExecutorService executor = Executors.newFixedThreadPool(totalThreads); // Criação de pool com o número de threads especificado
 
@@ -160,7 +159,7 @@ public class HighScoreMock {
      */
     public void processAllHighscorePages() {
         List<String> worlds = TibiaUtils.getWorlds();
-        int totalThreads = 10; // Número máximo de threads permitidas
+        int totalThreads = 3; // Número máximo de threads permitidas
 
         List<HighscoreTask> tasks = new ArrayList<>();
 

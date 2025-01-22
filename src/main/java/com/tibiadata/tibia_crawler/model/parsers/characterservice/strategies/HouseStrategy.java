@@ -25,7 +25,7 @@ public class HouseStrategy implements ObjectStrategy {
     private static final String HOUSE = "House:";
     private static final short ITEM = 1;
 
-    private List<House> houses = new ArrayList<>();
+    private final List<House> houses = new ArrayList<>();
     private List<House> cacheHouses;
 
     @Override

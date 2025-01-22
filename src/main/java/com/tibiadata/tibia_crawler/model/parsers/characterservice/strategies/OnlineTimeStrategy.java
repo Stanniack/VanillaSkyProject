@@ -42,9 +42,8 @@ public class OnlineTimeStrategy {
             needsPersistence = true;
 
         } else { // Senão, soma tempo diário
-            Integer currentTimeSecs = onlineMs;
             Integer previousTimeSecs = onlineTime.getSeconds() * 1000; // * 1000 para ms
-            onlineTime.setSeconds((currentTimeSecs + previousTimeSecs) / 1000);// Soma tempo já obtido com o novo tempo e transforma ms em secs
+            onlineTime.setSeconds((onlineMs + previousTimeSecs) / 1000);// Soma tempo já obtido com o novo tempo e transforma ms em secs
             needsPersistence = true;
         }
     }

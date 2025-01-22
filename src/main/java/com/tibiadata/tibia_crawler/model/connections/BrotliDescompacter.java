@@ -23,17 +23,7 @@ public class BrotliDescompacter {
     public String gzipBrDescompacter(String url) throws MalformedURLException, IOException {
         StringBuilder response = null;
 
-        URL link = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) link.openConnection();
-
-        // Desabilitar cache
-        connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-        connection.setRequestProperty("Pragma", "no-cache");
-        connection.setRequestProperty("Expires", "0");
-
-        // Outros cabeçalhos
-        connection.setRequestProperty("Accept-Encoding", "gzip, br");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        HttpURLConnection connection = getHttpURLConnection(url);
 
         InputStream inputStream = connection.getInputStream();
         String encoding = connection.getContentEncoding();
@@ -55,6 +45,21 @@ public class BrotliDescompacter {
         }
 
         return response.toString();
+    }
+
+    private static HttpURLConnection getHttpURLConnection(String url) throws IOException {
+        URL link = new URL(url);
+        HttpURLConnection connection = (HttpURLConnection) link.openConnection();
+
+        // Desabilitar cache
+        connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+        connection.setRequestProperty("Pragma", "no-cache");
+        connection.setRequestProperty("Expires", "0");
+
+        // Outros cabeçalhos
+        connection.setRequestProperty("Accept-Encoding", "gzip, br");
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+        return connection;
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class OnlineTimeProcessor {
 
-    private OnlineTimeStrategy otStrategy;
+    private final OnlineTimeStrategy otStrategy;
 
     @Autowired
     public OnlineTimeProcessor(OnlineTimeStrategy otStrategy) {

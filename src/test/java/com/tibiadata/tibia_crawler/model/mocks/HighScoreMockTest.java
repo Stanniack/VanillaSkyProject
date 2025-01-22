@@ -5,6 +5,8 @@ import com.tibiadata.tibia_crawler.model.mocks.HighScoreMock;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import java.io.IOException;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +38,7 @@ public class HighScoreMockTest {
                         elementsUtils.getTrBgcolor2(),
                         elementsUtils.getTd());
 
-        assertTrue(nicks.size() == 50, "The highscore page is NOT working.");
+        assertEquals(50, nicks.size(), "The highscore page is NOT working.");
     }
 
 }

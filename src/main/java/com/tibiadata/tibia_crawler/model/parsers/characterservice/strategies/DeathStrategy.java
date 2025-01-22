@@ -31,7 +31,7 @@ public class DeathStrategy implements ObjectStrategy {
     private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
     private static final short STRLENTOLERANCE = 500;
 
-    private List<Death> deaths = new ArrayList<>();
+    private final List<Death> deaths = new ArrayList<>();
 
     @Override
     public <T> void apply(Personage personage, String newValue) {
@@ -60,8 +60,7 @@ public class DeathStrategy implements ObjectStrategy {
         }
     }
 
-    @Transactional
-    private void persistDeaths(Personage personage) {
+    protected void persistDeaths(Personage personage) {
         deaths.forEach(death -> {
             ObjectHandler.persistObject(death, _death -> _death.setPersonage(personage), _death -> dp.save(_death));
         });

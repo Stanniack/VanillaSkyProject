@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 @Scope("prototype")
 public class OnlineCharacterProcessor {
 
-    private CharacterProcessor characterProcessor;
-    private OnlineTimeProcessor onlineTimeProcessor;
+    private final CharacterProcessor characterProcessor;
+    private final OnlineTimeProcessor onlineTimeProcessor;
 
     @Autowired
     public OnlineCharacterProcessor(CharacterProcessor characterProcessor, OnlineTimeProcessor onlineTimeProcessor) {
