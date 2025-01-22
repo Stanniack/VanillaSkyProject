@@ -26,7 +26,7 @@ public class CharacterProcessor {
 
     public Integer processName(String name) {
         CharacterService characterService = getCharacterServiceProvider().getObject();
-        return characterService.fetchCharacter("https://www.tibia.com/community/?characters&name=" + StringUtils.nameFormater(name));
+        return characterService.fetchCharacter("https://www.tibia.com/community/?name=" + StringUtils.nameFormater(name));
     }
 
     private ObjectProvider<CharacterService> getCharacterServiceProvider() {
