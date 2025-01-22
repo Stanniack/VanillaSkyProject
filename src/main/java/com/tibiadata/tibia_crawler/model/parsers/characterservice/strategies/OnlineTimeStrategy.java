@@ -30,7 +30,7 @@ public class OnlineTimeStrategy {
         save();
     }
 
-    private void onlineTimeValidator(Integer personageId, Integer onlineSecs) {
+    private void onlineTimeValidator(Integer personageId, Integer onlineMs) {
         //Compara se data da tabela OnlineTime são do mesmo dia
         // Compara campo secs se tem o mesmo valor
         onlineTime = otp.findLastTimeOnlineById(personageId);
@@ -38,16 +38,14 @@ public class OnlineTimeStrategy {
         if (onlineTime == null || !CalendarUtils.isSameDate(onlineTime.getRegisteredDate())) { // Se não existir ou se a data buscada for diferente a de hoje
             Personage p = new Personage();
             p.setId(personageId);
-            onlineTime = new OnlineTime(onlineSecs / 1000, Calendar.getInstance(), p);
+            onlineTime = new OnlineTime(onlineMs / 1000, Calendar.getInstance(), p);
             needsPersistence = true;
 
-        } else {
-            if (!Objects.equals(onlineTime.getSeconds(), onlineSecs)) { // Se o tempo buscado é diferente do tempo de hoje
-                Integer currentTimeSecs = onlineSecs;
-                Integer previousTimeSecs = onlineTime.getSeconds();
-                onlineTime.setSeconds((currentTimeSecs + previousTimeSecs) / 1000);// Soma tempo já obtido com o novo tempo
-                needsPersistence = true;
-            }
+        } else { // Senão, soma tempo diário
+            Integer currentTimeSecs = onlineMs;
+            Integer previousTimeSecs = onlineTime.getSeconds() * 1000; // * 1000 para ms
+            onlineTime.setSeconds((currentTimeSecs + previousTimeSecs) / 1000);// Soma tempo já obtido com o novo tempo e transforma ms em secs
+            needsPersistence = true;
         }
     }
 
