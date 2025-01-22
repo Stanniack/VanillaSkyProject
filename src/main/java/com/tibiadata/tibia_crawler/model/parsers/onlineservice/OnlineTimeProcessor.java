@@ -20,8 +20,8 @@ public class OnlineTimeProcessor {
         this.otStrategy = otStrategy;
     }
 
-    public void processOnlineTime(Integer personageId, Integer onlineSecs) {
-        otStrategy.apply(personageId, onlineSecs);
+    public void processOnlineTime(Integer personageId, Integer onlineMs) {
+        otStrategy.apply(personageId, onlineMs);
     }
 
 }

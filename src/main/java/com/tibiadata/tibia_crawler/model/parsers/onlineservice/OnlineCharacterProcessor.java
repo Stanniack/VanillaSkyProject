@@ -22,9 +22,9 @@ public class OnlineCharacterProcessor {
         this.onlineTimeProcessor = onlineTimeProcessor;
     }
 
-    public void onlineCharacter(String name, Integer onlineSecs) {
+    public void onlineCharacter(String name, Integer onlineMs) {
         Integer persongeId = characterProcessor.processName(name);//Processar personagem (CharacterProcessor)
-        onlineTimeProcessor.processOnlineTime(persongeId, onlineSecs);//Processar tempo online (OnlineTimeProcessor)
+        onlineTimeProcessor.processOnlineTime(persongeId, onlineMs);//Processar tempo online (OnlineTimeProcessor)
     }
 
 }
