@@ -122,14 +122,15 @@ public class CharacterService2 {
     private final ElementsUtils elementUtils;
     private final PriorityHandler pHandler;
 
-    public CharacterService2() {
+    @Autowired
+    public CharacterService2(GetContent getContent) {
         this.formerNames = new ArrayList<>();
         this.houses = new ArrayList<>();
         this.deaths = new ArrayList<>();
 
         this.calendar = Calendar.getInstance();
         this.calendar.set(Calendar.MILLISECOND, 0); // eliminar pontos flutuantes de MS ao persistir datas
-        this.getContent = new GetContent();
+        this.getContent = getContent;
         this.elementUtils = new ElementsUtils();
         this.pHandler = new PriorityHandler();
     }
