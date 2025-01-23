@@ -1,11 +1,11 @@
-package com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies;
+package com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies;
 
 import com.tibiadata.tibia_crawler.model.entities.OnlineTime;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.persistence.OnlineTimePersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import java.util.Calendar;
-import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

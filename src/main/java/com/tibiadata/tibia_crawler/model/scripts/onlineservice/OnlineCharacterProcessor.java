@@ -1,6 +1,6 @@
-package com.tibiadata.tibia_crawler.model.parsers.onlineservice;
+package com.tibiadata.tibia_crawler.model.scripts.onlineservice;
 
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.CharacterProcessor;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.CharacterProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

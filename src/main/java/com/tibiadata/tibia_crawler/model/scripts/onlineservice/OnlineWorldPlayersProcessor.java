@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.parsers.onlineservice;
+package com.tibiadata.tibia_crawler.model.scripts.onlineservice;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;

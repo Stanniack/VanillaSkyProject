@@ -1,6 +1,6 @@
-package com.tibiadata.tibia_crawler.model.parsers.onlineservice;
+package com.tibiadata.tibia_crawler.model.scripts.onlineservice;
 
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.OnlineTimeStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.OnlineTimeStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

@@ -1,21 +1,21 @@
-package com.tibiadata.tibia_crawler.model.parsers.characterservice;
+package com.tibiadata.tibia_crawler.model.scripts.characterservice;
 
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.HouseStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.CreatedStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LastLoginStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LevelProgressStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.WorldStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.TitleStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.ObjectStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AchievementsStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.SexStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AttributeStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.AccStatusStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.VocationStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.DeathStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.ResidenceStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.LoyaltyTitleStrategy;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies.GuildStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.HouseStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.CreatedStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.LastLoginStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.LevelProgressStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.WorldStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.TitleStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.ObjectStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.AchievementsStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.SexStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.AttributeStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.AccStatusStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.VocationStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.DeathStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.ResidenceStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.LoyaltyTitleStrategy;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies.GuildStrategy;
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.FormerName;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
@@ -109,6 +109,7 @@ public class CharacterService {
         } catch (IOException ex) {
             Logger.getLogger(CharacterService.class.getName()).log(Level.SEVERE, "Erro ao processar o personagem");
             // guardar a url do personagem para persistência posterior
+            // dormir por n secs
         }
         return -1;
     }

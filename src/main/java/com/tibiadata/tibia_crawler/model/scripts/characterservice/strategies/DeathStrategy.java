@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.parsers.characterservice.strategies;
+package com.tibiadata.tibia_crawler.model.scripts.characterservice.strategies;
 
 import com.tibiadata.tibia_crawler.model.entities.Death;
 import com.tibiadata.tibia_crawler.model.entities.Personage;
@@ -6,7 +6,7 @@ import com.tibiadata.tibia_crawler.model.exceptions.StringLengthException;
 import com.tibiadata.tibia_crawler.model.persistence.DeathPersistence;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
-import jakarta.transaction.Transactional;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;

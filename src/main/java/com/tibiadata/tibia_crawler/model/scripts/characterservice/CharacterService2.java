@@ -1,4 +1,4 @@
-package com.tibiadata.tibia_crawler.model.parsers.characterservice;
+package com.tibiadata.tibia_crawler.model.scripts.characterservice;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
 import com.tibiadata.tibia_crawler.model.entities.Achievements;

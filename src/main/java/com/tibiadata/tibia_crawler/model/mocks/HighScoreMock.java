@@ -1,7 +1,7 @@
 package com.tibiadata.tibia_crawler.model.mocks;
 
 import com.tibiadata.tibia_crawler.model.connections.GetContent;
-import com.tibiadata.tibia_crawler.model.parsers.characterservice.CharacterProcessor;
+import com.tibiadata.tibia_crawler.model.scripts.characterservice.CharacterProcessor;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
 import java.io.IOException;
