@@ -9,29 +9,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class ElementsUtils {
 
-    private final String td = "td";
-    private final String tr = "tr";
-    private final String trEvenOdd = "tr.Even, tr.Odd";
-    private final String trBgcolor = "tr[bgcolor='#F1E0C6'], tr[bgcolor='#D4C0A1']";
-    private final String trBgcolor2 = "tr[style='background-color:#F1E0C6;'], tr[style='background-color:#D4C0A1;']";
-
     public String getTd() {
-        return td;
+        return "td";
     }
 
     public String getTrEvenOdd() {
-        return trEvenOdd;
+        return "tr.Even, tr.Odd";
     }
 
     public String getTrBgcolor() {
-        return trBgcolor;
+        return "tr[bgcolor='#F1E0C6'], tr[bgcolor='#D4C0A1']";
     }
 
     public String getTr() {
-        return tr;
+        return "tr";
     }
 
     public String getTrBgcolor2() {
-        return trBgcolor2;
+        return "tr[style='background-color:#F1E0C6;'], tr[style='background-color:#D4C0A1;']";
     }
 }
