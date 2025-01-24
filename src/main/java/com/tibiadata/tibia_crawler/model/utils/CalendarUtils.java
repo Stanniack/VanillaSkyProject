@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author Devmachine
  */
 public class CalendarUtils {
-    
+
     /**
      * Compara duas datas para verificar se a diferença entre elas é maior ou
      * igual a 180 dias.
@@ -50,8 +50,7 @@ public class CalendarUtils {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH:mm:ss", Locale.ENGLISH); // Define o padrão do formato "Mmm d yyyy"
 
-        ZonedDateTime zonedDateTime = LocalDateTime.parse(textDate, formatter)
-                .atZone(ZoneId.of("Europe/Paris"));
+        ZonedDateTime zonedDateTime = LocalDateTime.parse(textDate, formatter).atZone(ZoneId.of("Europe/Paris"));
 
         Date date = Date.from(zonedDateTime.toInstant()); // Converte ZonedDateTime para Date
 
@@ -87,9 +86,30 @@ public class CalendarUtils {
 
         Calendar today = Calendar.getInstance();
 
-        return calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)
-                && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH)
-                && calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH);
+        return calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) && calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) && calendar.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH);
+    }
+
+    /**
+     * Converte um objeto Date para um objeto Calendar.
+     *
+     * @param date Data a ser convertida para Calendar.
+     * @return Calendar correspondente à data fornecida.
+     */
+    public static Calendar convertToCalendar(Date date) {
+        Calendar converted = Calendar.getInstance();
+        converted.setTime(date);
+        return converted;
+    }
+
+    /**
+     * Retorna a data e hora atual no formato "yyyy-MM-dd HH:mm:ss".
+     *
+     * @return String contendo a data e hora atual formatada.
+     */
+    public static String getDate() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(calendar.getTime());
     }
 
 }
