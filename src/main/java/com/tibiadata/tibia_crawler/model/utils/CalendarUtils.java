@@ -33,7 +33,6 @@ public class CalendarUtils {
     public static boolean greaterThan180Days(Calendar date1, Calendar date2) {
         long diffInMillis = Math.abs(date1.getTimeInMillis() - date2.getTimeInMillis()); // Calcular a diferença em milissegundos
         long diffInDays = diffInMillis / (24 * 60 * 60 * 1000); // Converter milissegundos para dias (1 dia = 86400000 milissegundos)
-        System.out.println(diffInDays);
         return diffInDays >= 180; // Verificar se a diferença é maior ou igual a 180 dias
     }
 
