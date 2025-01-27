@@ -201,7 +201,7 @@ public class CharacterService {
                 formerNamePersistence.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
-                System.out.println("FN já existe no bd.");
+                System.out.println("FN " + formerName.getFormerName() + " já existe no bd.");
             }
         }
     }
