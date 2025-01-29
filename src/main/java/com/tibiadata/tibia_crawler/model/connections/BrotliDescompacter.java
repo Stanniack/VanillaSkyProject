@@ -1,29 +1,29 @@
 package com.tibiadata.tibia_crawler.model.connections;
 
 import java.io.*;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
+
+import com.tibiadata.tibia_crawler.model.utils.ProxiesUtils;
 import org.brotli.dec.BrotliInputStream;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-/**
- *
- * @author Devmachine
- */
 @Component
-@Scope("prototype")
 public class BrotliDescompacter {
 
-    public String gzipBrDescompacter(String url) throws MalformedURLException, IOException {
+    /**
+     * Realiza uma requisição HTTP para a URL fornecida e descompacta a resposta no formato GZIP ou Brotli.
+     *
+     * @param url URL a ser requisitada.
+     * @return O conteúdo da resposta HTTP, descompactado e como uma String.
+     * @throws IOException Se ocorrer um erro ao fazer a requisição ou ao ler a resposta.
+     */
+    public String gzipBrDescompacter(String url) throws IOException {
         StringBuilder response = null;
 
-        HttpURLConnection connection = getHttpURLConnection(url);
+        HttpURLConnection connection = GetConnection.getHttpURLConnection(url);
 
         InputStream inputStream = connection.getInputStream();
         String encoding = connection.getContentEncoding();
@@ -46,20 +46,4 @@ public class BrotliDescompacter {
 
         return response.toString();
     }
-
-    private static HttpURLConnection getHttpURLConnection(String url) throws IOException {
-        URL link = new URL(url);
-        HttpURLConnection connection = (HttpURLConnection) link.openConnection();
-
-        // Desabilitar cache
-        connection.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-        connection.setRequestProperty("Pragma", "no-cache");
-        connection.setRequestProperty("Expires", "0");
-
-        // Outros cabeçalhos
-        connection.setRequestProperty("Accept-Encoding", "gzip, br");
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-        return connection;
-    }
-
 }
