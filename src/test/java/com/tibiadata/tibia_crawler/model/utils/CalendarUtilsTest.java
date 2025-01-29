@@ -34,6 +34,13 @@ public class CalendarUtilsTest {
     }
 
     @Test
+    public void testIsCurrentHourAndMinute(){
+        int hour = 00;
+        int minute = 44;
+        assertTrue(CalendarUtils.isCurrentHourAndMinute(hour, minute), "A hora e minuto fornecido não correspondem a hora e minuto atual");
+    }
+
+    @Test
     public void testIsSameDate() throws ParseException {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
