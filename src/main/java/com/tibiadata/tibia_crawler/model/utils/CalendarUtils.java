@@ -71,6 +71,18 @@ public class CalendarUtils {
     }
 
     /**
+     * Verifica se a hora e o minuto atuais são iguais aos valores fornecidos.
+     *
+     * @param hour   A hora a ser comparada com a hora atual.
+     * @param minute O minuto a ser comparado com o minuto atual.
+     * @return {@code true} se a hora e o minuto atuais forem iguais aos fornecidos,
+     * {@code false} caso contrário.
+     */
+    public static boolean isCurrentHourAndMinute(int hour, int minute){
+        return LocalTime.now().getHour() == hour && LocalTime.now().getMinute() == minute;
+    }
+
+    /**
      * Verifica se a data fornecida corresponde ao dia de hoje, ignorando horas,
      * minutos, segundos e milissegundos.
      *
