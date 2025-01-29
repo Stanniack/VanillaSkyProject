@@ -14,7 +14,7 @@ public class CalendarUtilsTest {
 
     @Test
     public void testGreaterThan180Days() throws ParseException {
-        String dateStr = "2024-07-30"; // Data no formato yyyy-MM-dd
+        String dateStr = "2024-09-31"; // Data no formato yyyy-MM-dd
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         Date date = sdf.parse(dateStr); // Converte para Date
@@ -23,5 +23,11 @@ public class CalendarUtilsTest {
 
         assertTrue(CalendarUtils.greaterThan180Days(Calendar.getInstance(), testCalendar), "A diferença entre as data é maior que 180 dias (6 meses)");
 
+    }
+
+    @Test
+    public void testIsCurrentMinute(){
+        int minute = 46;
+        assertTrue(CalendarUtils.isCurrentMinute(minute), "O minuto fornecido não corresponde ao minuto atual");
     }
 }
