@@ -33,6 +33,10 @@ public class OnlineWorldPlayersProcessor {
 
         } catch (IOException ex) {
             Logger.getLogger(OnlineService.class.getName()).log(Level.SEVERE, "Erro ao tentar buscar a pagina do servidor.");
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException ignored) {
+            }
         }
 
         return Arrays.asList();
