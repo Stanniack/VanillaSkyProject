@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,6 +29,17 @@ public class CalendarUtilsTest {
     @Test
     public void testIsCurrentMinute(){
         int minute = 46;
+
         assertTrue(CalendarUtils.isCurrentMinute(minute), "O minuto fornecido não corresponde ao minuto atual");
+    }
+
+    @Test
+    public void testIsSameDate() throws ParseException {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = sdf.parse("2025-01-30");
+        calendar.setTime(date);
+
+        assertTrue(CalendarUtils.isSameDate(calendar), "As datas comparadas não estão no mesmo dia ou mês ou ano");
     }
 }
