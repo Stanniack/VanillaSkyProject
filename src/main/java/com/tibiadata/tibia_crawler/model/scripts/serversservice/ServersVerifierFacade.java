@@ -5,6 +5,7 @@ import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,7 +15,7 @@ public class ServersVerifierFacade {
     private final OnlineService onlineService;
     private final OnlineCharactersPersistence onlineCharactersPersistence;
     //
-    private static int MINUTE = 1;
+    private static final int LOOPMINUTETIMER = 3;
 
     @Autowired
     public ServersVerifierFacade(OnlineService onlineService, OnlineCharactersPersistence onlineCharactersPersistence) {
@@ -27,15 +28,25 @@ public class ServersVerifierFacade {
 
         while (true) {
             Map<String, Map<String, Long>> worldTotalPlayers = getWorldTotalPlayers();
-            executor.execute(() -> onlineCharacterPersistence(worldTotalPlayers));// Executa onlineCharacterPersistence em uma thread separada
+            Map<String, Map<String, Long>> worldTotalPlayersCopy = deepCopy(worldTotalPlayers); // Cópia profunda
+            executor.execute(() -> onlineCharacterPersistence(worldTotalPlayersCopy));
 
             System.out.println("---------\nRECOMEÇA DE NOVO!\n---------");
         }
-
     }
 
+    private Map<String, Map<String, Long>> deepCopy(Map<String, Map<String, Long>> original) {
+        Map<String, Map<String, Long>> mapCopy = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, Long>> entry : original.entrySet()) {
+            mapCopy.put(entry.getKey(), new HashMap<>(entry.getValue()));// Cria uma nova cópia do mapa interno
+        }
+        return mapCopy;
+    }
+
+
     private Map<String, Map<String, Long>> getWorldTotalPlayers() {
-        return onlineService.serversVerifier(MINUTE);
+        return onlineService.serversVerifier(LOOPMINUTETIMER);
     }
 
     private void onlineCharacterPersistence(Map<String, Map<String, Long>> worldTotalPlayers) {
