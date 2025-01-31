@@ -59,16 +59,16 @@ public class GetContentTest {
                     elementsUtils.getTd()
             );
 
-            assertFalse(onlinePersonages.isEmpty(), "The returned list is empty. Check the url and world");
+            assertFalse(onlinePersonages.isEmpty(), "A lista retornada está vazia. Verifique a URL.");
 
         } catch (IOException ex) {
-            fail("Test failed due to an IOException, check the internet connection server: " + ex.getMessage());
+            fail("Teste falhou devido a uma 'I/O Exception' exceção, verifique a conexão do servidor: " + ex.getMessage());
         }
     }
 
     @Test
     void testGetTableContent() {
-        assertFalse(personageItens.isEmpty(), "The returned list is empty. Check the url or character name");
+        assertFalse(personageItens.isEmpty(), "A lista retornada está vazia. Verifique a URL ou o nome do personagem.");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class GetContentTest {
         List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
         // Se a lista está vazia, não precisa fazer a verficações de prefixo
-        assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
+        assertFalse(reorderedItens.isEmpty(), "A lista retornada está vazia. Verifique a URL ou o nome do personagem.");
 
         // Prefixos esperados armazenados em um Set - se o método reorderList for alterado, inviabiliza o test
         Set<String> expectedItems = Set.of(
@@ -88,7 +88,7 @@ public class GetContentTest {
         // Verificando se a lista contém os prefixos esperados, caso não houver, o personagem não existe ou há problemas ao minerar os dados
         for (String prefix : expectedItems) {
             assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
-                    "The list doesn't contain an item with '" + prefix + "'");
+                    "A lista não contém um item com o prefixo: '" + prefix + "'");
         }
     }
 
@@ -97,14 +97,14 @@ public class GetContentTest {
         List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
         // Se a lista está vazia, não precisa fazer a verficações de prefixo
-        assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
+        assertFalse(reorderedItens.isEmpty(), "A lista retornada está vazia. Verifique a URL ou o nome do personagem.");
 
         Set<String> expectedItems = Set.of("Loyalty Title:", "Created:");
 
         // Verificando se a lista contém os prefixos esperados, caso não houver, o personagem está marcado como 'hidden' pelo proprietário
         for (String prefix : expectedItems) {
             assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
-                    "The list doesn't contain an item with '" + prefix + "'");
+                    "A lista não contém um item com o prefixo: '" + prefix + "'");
         }
     }
 
@@ -113,7 +113,7 @@ public class GetContentTest {
         List<String> reorderedItens = priorityOrder.reorderList(personageItens);
 
         // Se a lista está vazia, não precisa fazer a verficações de prefixo
-        assertFalse(reorderedItens.isEmpty(), "The returned list is empty. Check the url or character name");
+        assertFalse(reorderedItens.isEmpty(), "A lista retornada está vazia. Verifique a URL ou o nome do personagem.");
 
         Set<String> expectedItems = Set.of("Former Names:", "Guild Membership:", "House:");
 
@@ -121,7 +121,7 @@ public class GetContentTest {
         o personagem não possui algumas informações arbitrárias, podendo ser checadas unitariamente */
         for (String prefix : expectedItems) {
             assertTrue(reorderedItens.stream().anyMatch(reorderedItem -> reorderedItem.startsWith(prefix)),
-                    "The list doesn't contain an item with '" + prefix + "'");
+                    "A lista não contém um item com o prefixo: '" + prefix + "'");
         }
     }
 
