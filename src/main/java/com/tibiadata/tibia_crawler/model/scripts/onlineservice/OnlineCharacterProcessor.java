@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- *
  * @author Devmachine
  */
 @Component
@@ -25,7 +24,7 @@ public class OnlineCharacterProcessor {
 
     public void onlineCharacter(String name, Integer onlineMs) {
         Integer persongeId = characterProcessor.processName(name);//Processar personagem (CharacterProcessor)
-        onlineTimeStrategy.apply(persongeId, onlineMs);//Processar tempo online
+        if (persongeId > 0) onlineTimeStrategy.apply(persongeId, onlineMs);//Processar tempo online se personageId > 0
     }
 
 }
