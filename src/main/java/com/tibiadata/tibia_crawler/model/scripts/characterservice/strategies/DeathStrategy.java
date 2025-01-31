@@ -29,7 +29,7 @@ public class DeathStrategy implements ObjectStrategy {
     private DeathPersistence dp;
 
     private static final String DEATH = "^\\w{3} \\d{2} \\d{4}, \\d{2}:\\d{2}:\\d{2} \\w+.*";
-    private static final short STRLENTOLERANCE = 750;
+    private static final short STRLENTOLERANCE = 2000;
 
     private final List<Death> deaths = new ArrayList<>();
 

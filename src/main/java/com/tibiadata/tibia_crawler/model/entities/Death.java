@@ -29,7 +29,7 @@ public class Death {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 750)
+    @Column(nullable = false, length = 2000)
     private String occurrence;
 
     @Column(nullable = false)
