@@ -1,11 +1,12 @@
 package com.tibiadata.tibia_crawler.model.scripts.onlineservice;
 
-import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import com.tibiadata.tibia_crawler.model.utils.StringUtils;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,8 @@ public class OnlineService {
     public Map<String, Map<String, Long>> serversVerifier(int minute) {
         long timer = System.currentTimeMillis();
 
-        while ((System.currentTimeMillis() - timer)/1000 < (minute * 60L)) { // Aguarda o timer chegar no for maior para finalizar
-            onlineTimeManager(TibiaUtils.getExperimentalWorlds());
+        while ((System.currentTimeMillis() - timer) / 1000 < (minute * 60L)) { // Aguarda o timer chegar no for maior para finalizar
+            onlineTimeManager(TibiaUtils.getRetroOpenPvpServers());
         }
 
         //printPlayers();
@@ -64,15 +65,20 @@ public class OnlineService {
             } // fim for mundos
 
             Iterator<String> iterator = worldTotalPlayers.get(world).keySet().iterator();
+            long persistirOffTime = System.currentTimeMillis();
+            int amount = 0;
 
             while (iterator.hasNext()) {
                 String name = iterator.next();
                 if (!worldOnlinePlayers.get(world).containsKey(name)) { // Se o jogador não estiver mais online
                     onlineCharacterProcessor.onlineCharacter(name, worldTotalPlayers.get(world).get(name).intValue()); // !!persistência simultânea
+                    amount++;
                     worldOfflinePlayers.get(world).put(name, worldTotalPlayers.get(world).get(name)); // Move o jogador para a lista de offline
                     iterator.remove();
                 }
             }
+
+            persistenceLogs(world, amount, persistirOffTime);
 
             worldTotalPlayers.get(world).putAll(worldOnlinePlayers.get(world)); // Atualiza a lista total com os jogadores online do mundo
             worldOnlinePlayers.get(world).clear(); // Limpa a lista de jogadores online do mundo
@@ -83,6 +89,15 @@ public class OnlineService {
         worldOnlinePlayers.putIfAbsent(world, new HashMap<>());
         worldTotalPlayers.putIfAbsent(world, new HashMap<>());
         worldOfflinePlayers.putIfAbsent(world, new HashMap<>());
+    }
+
+    private void persistenceLogs(String world, int amount, long persistirOffTime) {
+        if (amount > 0) {
+            System.out.println("TEMPO PARA PERSISTÊNCIA DOS PERSONAGENS QUE DESLOGARAM: " + (System.currentTimeMillis() - persistirOffTime) / 1000 + " SECS");
+            System.out.println("TENTATIVAS DE PERSISTÊNCIA: " + amount);
+            System.out.println("SERVIDOR: " + world);
+            System.out.println("___________________________________________________________________________________");
+        }
     }
 
     private void printPlayers() {
