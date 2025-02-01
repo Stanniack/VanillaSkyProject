@@ -14,8 +14,14 @@ import java.util.concurrent.Executors;
 public class ServersVerifierFacade {
     private final OnlineService onlineService;
     private final OnlineCharactersPersistence onlineCharactersPersistence;
-    //
-    private static final int LOOPMINUTETIMER = 3;
+
+    //minutes
+    private static final int LOOPMINUTETIMER = 540;
+    private static final int SERVERSAVEMINUTE = 15;
+    //seconds
+    private static final int SECONDS = 60;
+    //milliseconds
+    private static final int MS = 1000;
 
     @Autowired
     public ServersVerifierFacade(OnlineService onlineService, OnlineCharactersPersistence onlineCharactersPersistence) {
@@ -30,6 +36,11 @@ public class ServersVerifierFacade {
             Map<String, Map<String, Long>> worldTotalPlayers = getWorldTotalPlayers();
             Map<String, Map<String, Long>> worldTotalPlayersCopy = deepCopy(worldTotalPlayers); // Cópia profunda
             executor.execute(() -> onlineCharacterPersistence(worldTotalPlayersCopy));
+
+            try {
+                Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS);
+            } catch (InterruptedException ignored) {
+            }
 
             System.out.println("---------\nRECOMEÇA DE NOVO!\n---------");
         }
