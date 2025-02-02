@@ -2,6 +2,7 @@ package com.tibiadata.tibia_crawler.model.scripts.serversservice;
 
 import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineCharactersPersistence;
 import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineService;
+import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class ServersVerifierFacade {
     private final OnlineCharactersPersistence onlineCharactersPersistence;
 
     //minutes
-    private static final int LOOPMINUTETIMER = 540;
+    private static final int LOOPMINUTETIMER = (int) CalendarUtils.minutesToServerSave();
     private static final int SERVERSAVEMINUTE = 15;
     //seconds
     private static final int SECONDS = 60;
@@ -32,19 +33,24 @@ public class ServersVerifierFacade {
     public void browseServers() {
         ExecutorService executor = Executors.newCachedThreadPool();
 
-        while (true) {
-            Map<String, Map<String, Long>> worldTotalPlayers = getWorldTotalPlayers();
-            Map<String, Map<String, Long>> worldTotalPlayersCopy = deepCopy(worldTotalPlayers); // Cópia profunda
-            executor.execute(() -> onlineCharacterPersistence(worldTotalPlayersCopy));
+        try {
+            while (true) {
+                Map<String, Map<String, Long>> worldTotalPlayers = getWorldTotalPlayers();
+                Map<String, Map<String, Long>> worldTotalPlayersCopy = deepCopy(worldTotalPlayers);
+                executor.execute(() -> onlineCharacterPersistence(worldTotalPlayersCopy));
 
-            try {
                 Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS);
-            } catch (InterruptedException ignored) {
-            }
 
-            System.out.println("---------\nRECOMEÇA DE NOVO!\n---------");
+                System.out.println("---------\nRECOMEÇA DE NOVO!\n---------");
+            }
+        } catch (Exception e) {
+            System.err.println("Exceção na thread principal: " + e.getMessage());
+        } finally {
+            System.out.println("Finalizando thread secundária.");
+            executor.shutdown();  // Garantir que a segunda thread seja encerrada para evitar sobrrecarregamento de thread ao inicializar serviço NSSP
         }
     }
+
 
     private Map<String, Map<String, Long>> deepCopy(Map<String, Map<String, Long>> original) {
         Map<String, Map<String, Long>> mapCopy = new HashMap<>();
