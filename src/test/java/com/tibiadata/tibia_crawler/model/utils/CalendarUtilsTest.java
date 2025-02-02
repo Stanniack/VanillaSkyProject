@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CalendarUtilsTest {
@@ -53,4 +54,17 @@ public class CalendarUtilsTest {
 
         assertTrue(CalendarUtils.isSameDate(calendar), "As datas comparadas não estão no mesmo dia ou mês ou ano");
     }
+
+    @Test
+    @Disabled
+    public void testMinutesToServerSave() {
+        // Configuração do fuso horário europeu em CET/CEST
+        // O método deve calcular a diferença para 05:00 OU 06:00 do próximo dia (horário de Brasília)
+
+        long minutosRestantes = CalendarUtils.minutesToServerSave(); // Chama o método
+
+        assertEquals(467, minutosRestantes);
+    }
+
+
 }
