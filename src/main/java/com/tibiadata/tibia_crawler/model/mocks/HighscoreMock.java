@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * @author Devmachine
  */
 @Component
-public class HighScoreMock {
+public class HighscoreMock {
 
     private static final int NICKNAME_INDEX = 1;
 
@@ -28,7 +28,7 @@ public class HighScoreMock {
     private final ElementsUtils elementsUtil;
 
     @Autowired
-    public HighScoreMock(CharacterProcessor characterProcessor, ElementsUtils elementsUtils, GetContent getContent) {
+    public HighscoreMock(CharacterProcessor characterProcessor, ElementsUtils elementsUtils, GetContent getContent) {
         this.characterProcessor = characterProcessor;
         this.getContent = getContent;
         this.elementsUtil = elementsUtils;
@@ -158,7 +158,7 @@ public class HighScoreMock {
      * são finalizadas.
      */
     public void processAllHighscorePages() {
-        List<String> worlds = TibiaUtils.getWorlds();
+        List<String> worlds = TibiaUtils.getAllWorlds();
         int totalThreads = 3; // Número máximo de threads permitidas
 
         List<HighscoreTask> tasks = new ArrayList<>();
@@ -202,7 +202,7 @@ public class HighScoreMock {
                             characterProcessor.processName(nick);
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(HighScoreMock.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(HighscoreMock.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             };

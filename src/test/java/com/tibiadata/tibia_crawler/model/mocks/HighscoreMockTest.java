@@ -1,7 +1,6 @@
 package com.tibiadata.tibia_crawler.model.mocks;
 
 import com.tibiadata.tibia_crawler.TibiaCrawlerApplication4;
-import com.tibiadata.tibia_crawler.model.mocks.HighScoreMock;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
 import java.io.IOException;
 import java.util.List;
@@ -18,10 +17,10 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Devmachine
  */
 @SpringBootTest(classes = TibiaCrawlerApplication4.class)
-public class HighScoreMockTest {
+public class HighscoreMockTest {
 
     @Autowired
-    private HighScoreMock hsm;
+    private HighscoreMock hsm;
     private ElementsUtils elementsUtils;
 
     @BeforeEach
