@@ -61,9 +61,9 @@ public class CalendarUtilsTest {
         // Configuração do fuso horário europeu em CET/CEST
         // O método deve calcular a diferença para 05:00 OU 06:00 do próximo dia (horário de Brasília)
 
-        long minutosRestantes = CalendarUtils.minutesToServerSave(); // Chama o método
+        long remainingMinutes = CalendarUtils.minutesToServerSave(); // Chama o método
 
-        assertEquals(467, minutosRestantes);
+        assertEquals(467, remainingMinutes);
     }
 
 
