@@ -22,8 +22,11 @@ import com.tibiadata.tibia_crawler.model.entities.Personage;
 import com.tibiadata.tibia_crawler.model.handler.PriorityHandler;
 import com.tibiadata.tibia_crawler.model.persistence.FormerNamePersistence;
 import com.tibiadata.tibia_crawler.model.persistence.PersonagePersistence;
+import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineService;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
 import java.util.List;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tibiadata.tibia_crawler.model.utils.ElementsUtils;
@@ -45,7 +48,7 @@ import org.springframework.context.annotation.Scope;
 @Scope("prototype")
 @Service
 public class CharacterService {
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CharacterService.class);
     //
     private static final String NAME = "Name:";
     private static final String FORMERNAMES = "Former Names:";
@@ -172,14 +175,15 @@ public class CharacterService {
     private void persistPersonage(Personage p) {
 
         if (needsPersistence) {
-            System.out.println(p.getName() + " persistido.");
+            logger.info("{} persistido.", p.getName());
+
             if (p.getRegisteredDate() == null) {
                 p.setRegisteredDate(Calendar.getInstance()); // registra data caso não houver
             }
             personagePersistence.save(p);
 
         } else {
-            System.out.println(personage.getName() + " não precisa de persistência.");
+            logger.info("{} não precisa de persistência.", personage.getName());
         }
     }
 
@@ -201,7 +205,7 @@ public class CharacterService {
                 formerNamePersistence.save(formerName);
 
             } else { // Senão o formername EXISTE e está associado ao id do personage, não persistir pois já existe no bd
-                System.out.println("FN " + formerName.getFormerName() + " já existe no bd.");
+                logger.info("FN {} já existe no bd.", formerName.getFormerName());
             }
         }
     }

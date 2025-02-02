@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.tibiadata.tibia_crawler.model.utils.TibiaUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OnlineService {
+    private static final Logger logger = LoggerFactory.getLogger(OnlineService.class);
+    //
     private final OnlineWorldPlayersProcessor onlineWorldPlayersProcessor;
     private final OnlineCharacterProcessor onlineCharacterProcessor;
 
@@ -34,7 +38,7 @@ public class OnlineService {
         long timer = System.currentTimeMillis();
 
         while ((System.currentTimeMillis() - timer) / 1000 < (minute * 60L)) { // Aguarda o timer chegar no for maior para finalizar
-            onlineTimeManager(TibiaUtils.getRetroOpenPvpServers());
+            onlineTimeManager(TibiaUtils.getRetroOpenPvpWorlds());
         }
 
         //printPlayers();
@@ -93,26 +97,26 @@ public class OnlineService {
 
     private void persistenceLogs(String world, int amount, long persistirOffTime) {
         if (amount > 0) {
-            System.out.println("TEMPO PARA PERSISTÊNCIA DOS PERSONAGENS QUE DESLOGARAM: " + (System.currentTimeMillis() - persistirOffTime) / 1000 + " SECS");
-            System.out.println("TENTATIVAS DE PERSISTÊNCIA: " + amount);
-            System.out.println("SERVIDOR: " + world);
-            System.out.println("___________________________________________________________________________________");
+            logger.info("TEMPO PARA PERSISTÊNCIA DOS PERSONAGENS QUE DESLOGARAM: {} SECS", (System.currentTimeMillis() - persistirOffTime) / 1000);
+            logger.info("TENTATIVAS DE PERSISTÊNCIA: {}", amount);
+            logger.info("SERVIDOR: {}", world);
+            logger.info("___________________________________________________________________________________");
         }
     }
 
     private void printPlayers() {
 
-        System.out.println("---------");
-        System.out.println("Online:");
-        System.out.println("---------");
+        logger.debug("---------");
+        logger.debug("Online:");
+        logger.debug("---------");
 
         for (var entry : worldTotalPlayers.entrySet()) {
             entry.getValue().entrySet().forEach(System.out::println);
         }
 
-        System.out.println("---------");
-        System.out.println("Offline:");
-        System.out.println("---------");
+        logger.debug("---------");
+        logger.debug("Offline:");
+        logger.debug("---------");
 
         for (var entry : worldOfflinePlayers.entrySet()) {
             entry.getValue().entrySet().forEach(System.out::println);
