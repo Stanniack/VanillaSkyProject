@@ -46,14 +46,19 @@ public class TibiaUtils {
     );
 
     @Getter
-    private static final List<String> retroOpenPvpServers = Arrays.asList(
+    private static final List<String> retroOpenPvpWorlds = Arrays.asList(
             "Ambra", "Divina", "Epoca", "Fibera", "Firmera", "Flamera", "Gladibra", "Lutabra",
             "Malivora", "Quebra", "Temera"
     );
 
     @Getter
-    private static final List<String> retroHardcorePvpservers = Arrays.asList(
+    private static final List<String> retroHardcorePvpWorlds = Arrays.asList(
             "Gravitera", "Jacabra", "Obscubra", "Retalia", "Wildera"
     );
+
+    //Br servers -> os 4 tipos
+    //Eu servers -> os 4 tipos
+    //NA servers -> os 4 tipos
+    //OC servers -> os 4 tipos (não tem todos)
 
 }
