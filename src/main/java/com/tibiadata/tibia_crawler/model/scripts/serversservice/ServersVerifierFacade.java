@@ -3,6 +3,8 @@ package com.tibiadata.tibia_crawler.model.scripts.serversservice;
 import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineCharactersPersistence;
 import com.tibiadata.tibia_crawler.model.scripts.onlineservice.OnlineService;
 import com.tibiadata.tibia_crawler.model.utils.CalendarUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.concurrent.Executors;
 
 @Service
 public class ServersVerifierFacade {
+    private static final Logger logger = LoggerFactory.getLogger(ServersVerifierFacade.class);
+    //
     private final OnlineService onlineService;
     private final OnlineCharactersPersistence onlineCharactersPersistence;
 
@@ -41,12 +45,12 @@ public class ServersVerifierFacade {
 
                 Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS);
 
-                System.out.println("---------\nRECOMEÇA DE NOVO!\n---------");
+                logger.debug("---------\nRECOMEÇA DE NOVO!\n---------");
             }
         } catch (Exception e) {
-            System.err.println("Exceção na thread principal: " + e.getMessage());
+            logger.error("Exceção na thread principal: {}", e.getMessage());
         } finally {
-            System.out.println("Finalizando thread secundária.");
+            logger.warn("Finalizando thread secundária.");
             executor.shutdown();  // Garantir que a segunda thread seja encerrada para evitar sobrrecarregamento de thread ao inicializar serviço NSSP
         }
     }
