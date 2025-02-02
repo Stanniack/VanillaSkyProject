@@ -2,10 +2,7 @@ package com.tibiadata.tibia_crawler.model.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
@@ -78,7 +75,7 @@ public class CalendarUtils {
      * @return {@code true} se a hora e o minuto atuais forem iguais aos fornecidos,
      * {@code false} caso contrário.
      */
-    public static boolean isCurrentHourAndMinute(int hour, int minute){
+    public static boolean isCurrentHourAndMinute(int hour, int minute) {
         return LocalTime.now().getHour() == hour && LocalTime.now().getMinute() == minute;
     }
 
@@ -121,6 +118,30 @@ public class CalendarUtils {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdf.format(calendar.getTime());
+    }
+
+    /**
+     * Calcula quantos minutos faltam para o save server, considerando o horário de Brasília.
+     * O save ocorre às 5h (CET) ou 6h (CEST), dependendo do horário europeu.
+     *
+     * @return Minutos restantes para o próximo save server.
+     */
+    public static long minutesToServerSave() {
+        ZoneId europeZone = ZoneId.of("Europe/Berlin"); // Fuso horário europeu (CET/CEST)
+        ZoneId brazilZone = ZoneId.of("America/Sao_Paulo"); // Fuso horário de Brasília
+
+        ZonedDateTime nowBrazil = ZonedDateTime.now(brazilZone); // Horário atual em Brasília
+        boolean isCEST = ZonedDateTime.now(europeZone).getZone().getRules().isDaylightSavings(Instant.now());
+
+        LocalTime saveTime = isCEST ? LocalTime.of(6, 0) : LocalTime.of(5, 0); // Define o horário do save
+        LocalDateTime nextSave = nowBrazil.toLocalDate().atTime(saveTime);
+
+        // Se já passou do horário do save hoje, considerar o próximo dia
+        if (nowBrazil.toLocalTime().isAfter(saveTime)) {
+            nextSave = nextSave.plusDays(1);
+        }
+
+        return Duration.between(nowBrazil.toLocalDateTime(), nextSave).toMinutes();
     }
 
 }
