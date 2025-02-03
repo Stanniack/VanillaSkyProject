@@ -133,7 +133,7 @@ public class CalendarUtils {
         ZonedDateTime nowBrazil = ZonedDateTime.now(brazilZone); // Horário atual em Brasília
         boolean isCEST = ZonedDateTime.now(europeZone).getZone().getRules().isDaylightSavings(Instant.now());
 
-        LocalTime saveTime = isCEST ? LocalTime.of(6, 0) : LocalTime.of(5, 0); // Define o horário do save
+        LocalTime saveTime = isCEST ? LocalTime.of(5, 0) : LocalTime.of(6, 0); // Define o horário do save
         LocalDateTime nextSave = nowBrazil.toLocalDate().atTime(saveTime);
 
         // Se já passou do horário do save hoje, considerar o próximo dia
