@@ -45,7 +45,7 @@ public class ServersVerifierFacade {
 
                 Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS);
 
-                logger.debug("---------\nRECOMEÇA DE NOVO!\n---------");
+                logger.debug("--------- !RECOMEÇA NOVAMENTE! ---------");
             }
         } catch (Exception e) {
             logger.error("Exceção na thread principal: {}", e.getMessage());
