@@ -354,8 +354,8 @@ public class CharacterService2 {
 
         if (dbGuild != null && dbGuild.getGuildName().equals(guildName)) {// Se último guildName existe no bd e é igual ao guildName atual
 
-            if (!dbGuild.getRank().equals(rank)) {// Se o rank não é igual ao do bd, alterar rank e persistir
-                dbGuild.setRank(rank);
+            if (!dbGuild.getGuildRank().equals(rank)) {// Se o rank não é igual ao do bd, alterar rank e persistir
+                dbGuild.setGuildRank(rank);
                 this.guild = dbGuild; // atribui guild com valores alterados para persistir
             }
 

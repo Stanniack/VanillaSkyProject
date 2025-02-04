@@ -30,7 +30,7 @@ public class Guild {
     private Integer id;
 
     @Column(nullable = false)
-    private String rank;
+    private String guildRank;
 
     @Column(nullable = false)
     private String guildName;
@@ -43,8 +43,8 @@ public class Guild {
     @Temporal(TemporalType.TIMESTAMP)
     private Calendar registeredDate;
 
-    public Guild(String rank, String guildName, Calendar registeredDate) {
-        this.rank = rank;
+    public Guild(String guildRank, String guildName, Calendar registeredDate) {
+        this.guildRank = guildRank;
         this.guildName = guildName;
         this.registeredDate = registeredDate;
     }
