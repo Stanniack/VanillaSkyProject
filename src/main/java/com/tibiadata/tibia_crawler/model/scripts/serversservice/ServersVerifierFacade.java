@@ -21,7 +21,6 @@ public class ServersVerifierFacade {
     private final OnlineCharactersPersistence onlineCharactersPersistence;
 
     //minutes
-    private static final int LOOPMINUTETIMER = (int) CalendarUtils.minutesToServerSave();
     private static final int SERVERSAVEMINUTE = 15;
     //seconds
     private static final int SECONDS = 60;
@@ -39,16 +38,18 @@ public class ServersVerifierFacade {
 
         try {
             while (true) {
+                //
                 Map<String, Map<String, Long>> worldTotalPlayers = getWorldTotalPlayers();
+                //
                 Map<String, Map<String, Long>> worldTotalPlayersCopy = deepCopy(worldTotalPlayers);
                 executor.execute(() -> onlineCharacterPersistence(worldTotalPlayersCopy));
 
-                Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS);
+                Thread.sleep(SERVERSAVEMINUTE * SECONDS * MS); //Enquanto a lista de allWorlds retornar vazia, dorme?
 
                 logger.debug("--------- !RECOMEÇA NOVAMENTE! ---------");
             }
         } catch (Exception e) {
-            logger.error("Exceção na thread principal: {}", e.getMessage());
+            logger.error("Exceção na thread principal: ", e);
         } finally {
             logger.warn("Finalizando thread secundária.");
             executor.shutdown();  // Garantir que a segunda thread seja encerrada para evitar sobrrecarregamento de thread ao inicializar serviço NSSP
@@ -67,7 +68,8 @@ public class ServersVerifierFacade {
 
 
     private Map<String, Map<String, Long>> getWorldTotalPlayers() {
-        return onlineService.serversVerifier(LOOPMINUTETIMER);
+        int loopMinuteTimer = (int) CalendarUtils.minutesToServerSave();
+        return onlineService.serversVerifier(loopMinuteTimer);
     }
 
     private void onlineCharacterPersistence(Map<String, Map<String, Long>> worldTotalPlayers) {
