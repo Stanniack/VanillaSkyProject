@@ -33,7 +33,7 @@ public class TibiaUtils {
             "Aethera", "Antica", "Cantabra", "Ferobra", "Havera", "Honbra", "Inabra", "Jadebra", "Jaguna",
             "Lobera", "Ombra", "Ourobra", "Peloria", "Premia", "Quelibra", "Quidera", "Quintera", "Rasteibra",
             "Runera", "Serdebra", "Solidera", "Talera", "Thyria", "Tornabra", "Unebra", "Vandera", "Victoris",
-            "Vunira", "Wintera", "Xyla", "Yara"
+            "Vunira", "Wintera", "Xyla", "Yara", "Noctalia", "Ignitera", "Xybra"
     );
 
     @Getter
